@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 
 mongoose.connect(
   process.env.MONGO_BASE_ACESS,
-  { useNewUrlParser: true, useUnifiedTopology: true },
+  { useNewUrlParser: true, useUnifiedTopology: true ,useFindAndModify: false},
   () => console.log("db connected")
 );
 

@@ -31,21 +31,21 @@ const signUpTemplate=new mongoose.Schema({
         type:String,
         required:true
     },
-    type: {
+    usetype: {
         type:String,
         required:true
     },
-    comanyname: {
+    companyname: {
         type:String,
-        required:function(){return this.type1==='supplier'}
+        required:function(){return this.usetype==='supplier'}
     },
     branch: {
         type:String,
-        required:function(){return this.type1==='supplier'}
+        required:function(){return this.usetype==='supplier'}
     },
     badge: {
         type:String,
-        required:function(){return this.type1==='supplier'}
+        required:function(){return this.usetype==='supplier'}
     },
     status: {
         type:String,
