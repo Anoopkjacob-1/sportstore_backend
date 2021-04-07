@@ -148,4 +148,60 @@ router.put("/profileEdit", async (req, resp) => {
   }
 });
 
+
+router.get("/userdata", async (req, resp) => {
+  try{
+  signUpTemplatecopy.find({})
+  .exec((err,usersdata)=>{
+     if(err){
+      req.json( {message : "No users found"});
+      res.redirect("/home");
+     }else{
+         resp.json(usersdata);
+     }
+  });
+  }
+  catch(error){
+      return resp
+      .status(400)
+      .json({ error: err, message: "Error fetching data" });
+  }
+});
+
+
+
+router.put("/profileActivate", async (req, resp) => {
+  try {
+      console.log(req.body)
+      const query = { "email": req.body.email };
+      // Set some fields in that document
+      const update = {
+        "$set": {
+          "status":req.body.action
+        }
+      };
+      // Return the updated document instead of the original document
+      const options = { returnNewDocument: true };
+      return signUpTemplatecopy.findOneAndUpdate(query, update, options)
+        .then(updatedDocument => {
+          if(updatedDocument) {
+            resp.status(200).json({ message: `Successfullly ${req.body.action}`});
+
+            console.log(`Successfully updated document: ${updatedDocument}.`)
+          } else {
+            resp.status(200).json({ message: `Unsuccessfullly ${req.body.action}`});
+            console.log("No user found")
+          }
+          return updatedDocument
+        })
+        .catch(err => console.error(`Failed to find and update document: ${err}`))
+      
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: error, message: "Error updating" });
+  }
+});
+
+
 module.exports = router;
