@@ -3,6 +3,8 @@ const router = express.Router();
 const signUpTemplatecopy = require("../models/SignUpModels");
 const bcrypt = require("bcrypt");
 
+// to register the user
+
 router.post("/signup", async (req, resp) => {
   if (req.body.usetype != "supplier") {
     req.body.companyname = "";
@@ -35,6 +37,8 @@ router.post("/signup", async (req, resp) => {
       resp.status(400).json({ error: error, message: " error " });
     });
 });
+
+// to login 
 
 router.post("/signin", async (req, resp) => {
   try {
@@ -79,6 +83,7 @@ router.post("/signin", async (req, resp) => {
   }
 });
 
+// to get informatiopn about a user with given email in profile pages
 
 router.post("/profileGet", async (req, resp) => {
     try{
@@ -98,6 +103,8 @@ router.post("/profileGet", async (req, resp) => {
         .json({ error: err, message: "Error fetching data" });
     }
 });
+
+// to edit the profile
 
 router.put("/profileEdit", async (req, resp) => {
   try {
@@ -148,6 +155,7 @@ router.put("/profileEdit", async (req, resp) => {
   }
 });
 
+// complete user data from admin panel
 
 router.get("/userdata", async (req, resp) => {
   try{
@@ -168,7 +176,7 @@ router.get("/userdata", async (req, resp) => {
   }
 });
 
-
+//activat and seactivate user in admin panel
 
 router.put("/profileActivate", async (req, resp) => {
   try {

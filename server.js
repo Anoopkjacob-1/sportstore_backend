@@ -7,6 +7,7 @@ const cors = require('cors');
 
 
 const routesurl=require('./Router/router')
+const productroutesurl=require('./Router/ProductRoutes')
 
 
 // const PORT = 4000;
@@ -24,6 +25,7 @@ mongoose.connect(
 
 
 app.use('/app',routesurl)
+app.use('/product',productroutesurl)
 
 app.listen(5000, () => {
   console.log("Server is running on Port");

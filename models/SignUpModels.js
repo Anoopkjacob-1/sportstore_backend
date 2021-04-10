@@ -49,7 +49,7 @@ const signUpTemplate=new mongoose.Schema({
     },
     status: {
         type:String,
-        default:'inactive'
+        default:'INACTIVE'
     },
     date: {
         type:Date,
