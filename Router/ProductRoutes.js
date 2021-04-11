@@ -1,24 +1,32 @@
 const express = require("express");
 const router = express.Router();
 const {v4 : uuidv4} = require('uuid')
-const categoreyTemplatecopy = require("../models/CategoreyModels");
 
-// to add categorey to catgorey table
+const categoreyTemplatecopy = require("../models/CategoreyModels");
+const brandTemplatecopy = require("../models/BrandModels");
+
+
+//                                                     CATEGOREY ROUTES
+//                                                     ---------------
+
+
+
+// TO ADD CATEGOREY TO CATEGOREY TABLE
 
 router.post("/categoreyAdd", async (req, resp) => {
      
   const categoreyId = uuidv4()
   try{
         categoreyTemplatecopy.findOne({categoreyname:req.body.categoreyname})
-        .exec((err,userdata)=>{
+        .exec((err,catdata)=>{
           if(err){
             resp.json( {message : "categore error "});
           }else{
-            if(userdata)
+            if(catdata)
             {
               resp.json( {message : "category alreday exist"});
             }
-              if(!userdata)
+              if(!catdata)
                   // add to categorey
            {
                 const Categoreyinstance = new categoreyTemplatecopy({
@@ -48,7 +56,7 @@ router.post("/categoreyAdd", async (req, resp) => {
   });
 
 
-// to get data from catgorey table
+// TO GET DATA FROM CATEGOREY TABLE
  
 router.get("/categoreyGet", async (req, resp) => {
     try{
@@ -68,6 +76,8 @@ router.get("/categoreyGet", async (req, resp) => {
     }
   });
 
+
+// TO UPDATE CATEGOREY IN CATEGOREY TABLE 
 
 router.put("/categoreyUpdate", async (req, resp) => {
     try {
@@ -101,5 +111,110 @@ router.put("/categoreyUpdate", async (req, resp) => {
         .json({ error: error, message: "Error updating" });
     }
   });
+
+
+ //                                                   BRAND ROUTES 
+//                                                    -----------
+
+
+// TO ADD BRAND TO BARND TABLE
+
+router.post("/brandAdd", async (req, resp) => {
+     
+  const brandId = uuidv4()
+  try{
+     brandTemplatecopy.findOne({brandname:req.body.brandname})
+        .exec((err,branddata)=>{
+          if(err){
+            resp.json( {message : "brand error "});
+          }else{
+            if(branddata)
+            {
+              resp.json( {message : "brand alreday exist"});
+            }
+              if(!branddata)
+                  // add to brand
+           {
+                const Brandinstance = new brandTemplatecopy({
+                    brandname: req.body.brandname,
+                    brandid:brandId
+                });
+                console.log(req.body);
+
+                Brandinstance
+                  .save()
+                  .then((data) => {
+                    resp.status(200).json({ message:"brand added",DATA:data});
+                  })
+                  .catch((error) => {
+                    resp.status(400).json({ error: error, message: " error " });
+                  });
+             }      
+          }
+        });
+    }
+    catch(error){
+        return resp
+        .status(400)
+        .json({ error: error, message: "Error fetching data" });
+    }  
+  });
+
+
+// TO GET DATA FROM BRAND TABLE
+ 
+router.get("/brandGet", async (req, resp) => {
+  try{
+    brandTemplatecopy.find({})
+  .exec((err,Branddata)=>{
+     if(err){
+      resp.json( {message : "brand none"});
+     }else{
+         resp.json(Branddata);
+     }
+  });
+  }
+  catch(error){
+      return resp
+      .status(400)
+      .json({ error: err, message: "Error fetching data" });
+  }
+});  
+
+// TO UPDATE CATEGOREY IN CATEGOREY TABLE 
+
+router.put("/brandUpdate", async (req, resp) => {
+  try {
+      console.log(req.body)
+      const query = { "brandid":req.body.brandid};
+      // Set some fields in that document
+      const update = {
+        "$set": {
+          "brandname":req.body.brandname
+        }
+      };
+      // Return the updated document instead of the original document
+      const options = { returnNewDocument: true };
+      return brandTemplatecopy.findOneAndUpdate(query, update, options)
+        .then(updatedDocument => {
+          if(updatedDocument) {
+            resp.status(200).json({ message: "brand updated"});
+
+            console.log(`Successfully updated document: ${updatedDocument}.`)
+          } else {
+            resp.status(200).json({ message: "brand not updated"});
+            console.log("brand not valid.")
+          }
+          return updatedDocument
+        })
+        .catch(err => console.error(`Failed to find and update document: ${err}`))
+      
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: error, message: "Error updating" });
+  }
+});
+
 
 module.exports = router;
