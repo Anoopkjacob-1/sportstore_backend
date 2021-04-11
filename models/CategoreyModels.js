@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
 
 const categoreyTemplate=new mongoose.Schema({
+    categoreyid:{
+        type:String,
+      required:true
+    },
     categoreyname: {
         type:String,
-        unique: true,
+     
         required:true
     },
 });

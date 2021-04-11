@@ -109,12 +109,12 @@ router.post("/profileGet", async (req, resp) => {
 router.put("/profileEdit", async (req, resp) => {
   try {
       console.log(req.body)
-  if(req.body.passvalue !== "")
+  if(req.body.password !== "")
   {
       salt = await bcrypt.genSalt(10);
       passvalue = await bcrypt.hash(req.body.password, salt);
   }
- else if(req.body.passvalue ==="")
+ else if(req.body.password ==="")
    {
        passvalue=req.body.hash;
     }
