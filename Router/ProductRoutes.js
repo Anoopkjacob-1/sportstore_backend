@@ -4,6 +4,7 @@ const {v4 : uuidv4} = require('uuid')
 
 const categoreyTemplatecopy = require("../models/CategoreyModels");
 const brandTemplatecopy = require("../models/BrandModels");
+const subcategoreyTemplatecopy = require("../models/SubcategoreyModel");
 
 
 //                                                     CATEGOREY ROUTES
@@ -215,6 +216,57 @@ router.put("/brandUpdate", async (req, resp) => {
       .json({ error: error, message: "Error updating" });
   }
 });
+
+
+
+ //                                                   SUBCATEGOREY ROUTES 
+//                                                    -----------
+
+
+// TO ADD SUBCATEGOREY TO SUBCATEGOREY TABLE
+
+router.post("/subcategoreyAdd", async (req, resp) => {
+     
+  const subCatId = uuidv4()
+  try{
+    subcategoreyTemplatecopy.findOne({subcategoreyname:req.body.subcatname})
+        .exec((err,subCatdata)=>{
+          if(err){
+            resp.json( {message : "subcategorey error "});
+          }else{
+            if(subCatdata)
+            {
+              resp.json( {message : "subcategorey alreday exist"});
+            }
+              if(!subCatdata)
+                  // add to subcategorey
+           {
+                const subCatinstance = new subcategoreyTemplatecopy({
+
+                  subcategoreyname: req.body.subcatname,
+                  categoreyno:req.body.categoreydrop,
+                  brandno:req.body.branddrop,
+                  subcategoreyid:subCatId
+                });
+                console.log(req.body);
+                subCatinstance
+                  .save()
+                  .then((data) => {
+                    resp.status(200).json({ message:"subcategorey added",DATA:data});
+                  })
+                  .catch((error) => {
+                    resp.status(400).json({ error: error, message: " error " });
+                  });
+             }      
+          }
+        });
+    }
+    catch(error){
+        return resp
+        .status(400)
+        .json({ error: error, message: "Error fetching data" });
+    }  
+  });
 
 
 module.exports = router;
