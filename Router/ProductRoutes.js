@@ -182,7 +182,7 @@ router.get("/brandGet", async (req, resp) => {
   }
 });  
 
-// TO UPDATE CATEGOREY IN CATEGOREY TABLE 
+// TO UPDATE  BRAND IN BRAND TABLE 
 
 router.put("/brandUpdate", async (req, resp) => {
   try {
@@ -229,7 +229,7 @@ router.post("/subcategoreyAdd", async (req, resp) => {
      
   const subCatId = uuidv4()
   try{
-    subcategoreyTemplatecopy.findOne({subcategoreyname:req.body.subcatname})
+    subcategoreyTemplatecopy.findOne({subcategoreyname:req.body.subcatname,categoreyno:req.body.categoreydrop,brandno:req.body.branddrop})
         .exec((err,subCatdata)=>{
           if(err){
             resp.json( {message : "subcategorey error "});
@@ -267,6 +267,85 @@ router.post("/subcategoreyAdd", async (req, resp) => {
         .json({ error: error, message: "Error fetching data" });
     }  
   });
+
+//  to get subcategorey from subcategorey table
+
+  router.get("/subcategoreyGet", async (req, resp) => {
+    try{
+      subcategoreyTemplatecopy.find({}).populate('categoreyno','categoreyname').populate('brandno','brandname')
+    .exec((err,subcatdata)=>{
+       if(err){
+        resp.json( {message : "subcategorey none"});
+       }else{
+           resp.json(subcatdata);
+       }
+    });
+    }
+    catch(error){
+        return resp
+        .status(400)
+        .json({ error: err, message: "Error fetching data" });
+    }
+  }); 
+
+// to get subcat for one based on subcatid
+
+  // router.post("/subcategoreyGetOne", async (req, resp) => {
+  //   try{
+  //     subcategoreyTemplatecopy.find({subcategoreyid:req.body.subcatid}).populate('categoreyno','categoreyname').populate('brandno','brandname')
+  //   .exec((err,subcatdata)=>{
+  //      if(err){
+  //       resp.json( {message : "subcategorey none"});
+  //      }else{
+  //          resp.json(subcatdata);
+  //      }
+  //   });
+  //   }
+  //   catch(error){
+  //       return resp
+  //       .status(400)
+  //       .json({ error: err, message: "Error fetching data" });
+  //   }
+  // }); 
+
+  
+
+ // TO UPDATE SUBCATEGOREY IN SUBCATEGOREY TABLE 
+
+router.put("/subcategoreyUpdate", async (req, resp) => {
+  try {
+      console.log(req.body)
+      const query = { "subcategoreyid":req.body.subcategoreyid};
+      // Set some fields in that document
+      const update = {
+        "$set": {
+          "subcategoreyname":req.body.subcatname,
+           "categoreyno":req.body.categoreydrop,
+           "brandno":req.body.branddrop
+        }
+      };
+      // Return the updated document instead of the original document
+      const options = { returnNewDocument: true };
+      return subcategoreyTemplatecopy.findOneAndUpdate(query, update, options)
+        .then(updatedDocument => {
+          if(updatedDocument) {
+            resp.status(200).json({ message: "subcategorey updated"});
+
+            console.log(`Successfully updated document: ${updatedDocument}.`)
+          } else {
+            resp.status(200).json({ message: "subcategorey not updated"});
+            console.log("brand not valid.")
+          }
+          return updatedDocument
+        })
+        .catch(err => console.error(`Failed to find and update document: ${err}`))
+      
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: error, message: "Error updating" });
+  }
+}); 
 
 
 module.exports = router;
