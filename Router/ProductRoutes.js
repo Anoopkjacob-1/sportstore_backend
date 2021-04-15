@@ -5,6 +5,7 @@ const {v4 : uuidv4} = require('uuid')
 const categoreyTemplatecopy = require("../models/CategoreyModels");
 const brandTemplatecopy = require("../models/BrandModels");
 const subcategoreyTemplatecopy = require("../models/SubcategoreyModel");
+const productTemplatecopy = require("../models/ProductModel");
 
 
 //                                                     CATEGOREY ROUTES
@@ -290,23 +291,23 @@ router.post("/subcategoreyAdd", async (req, resp) => {
 
 // to get subcat for one based on subcatid
 
-  // router.post("/subcategoreyGetOne", async (req, resp) => {
-  //   try{
-  //     subcategoreyTemplatecopy.find({subcategoreyid:req.body.subcatid}).populate('categoreyno','categoreyname').populate('brandno','brandname')
-  //   .exec((err,subcatdata)=>{
-  //      if(err){
-  //       resp.json( {message : "subcategorey none"});
-  //      }else{
-  //          resp.json(subcatdata);
-  //      }
-  //   });
-  //   }
-  //   catch(error){
-  //       return resp
-  //       .status(400)
-  //       .json({ error: err, message: "Error fetching data" });
-  //   }
-  // }); 
+  router.post("/subcategoreyGetOne", async (req, resp) => {
+    try{
+      subcategoreyTemplatecopy.find({categoreyno:req.body.categoreydrop,brandno:req.body.branddrop}).populate('categoreyno','categoreyname').populate('brandno','brandname')
+    .exec((err,subcatdata)=>{
+       if(err){
+        resp.json( {message : "subcategorey none"});
+       }else{
+           resp.json({message : "subcategorey list",data:subcatdata});
+       }
+    });
+    }
+    catch(error){
+        return resp
+        .status(400)
+        .json({ error: err, message: "Error fetching data" });
+    }
+  }); 
 
   
 
@@ -346,6 +347,62 @@ router.put("/subcategoreyUpdate", async (req, resp) => {
       .json({ error: error, message: "Error updating" });
   }
 }); 
+
+
+
+
+ //                                                   PRODUCT ROUTES 
+//                                                    -----------
+
+router.post("/productAdd", async (req, resp) => {
+ console.log(req.body)
+  const productId = uuidv4()
+  try{
+    productTemplatecopy.findOne({productname:req.body.product,subcatno:req.body.subcatid,categoreyno:req.body.categoreyid,brandno:req.body.brandid})
+        .exec((err,productData)=>{
+          if(err){
+            resp.json( {message : "product error "});
+          }else{
+            if(productData)
+            {
+              resp.json( {message : "product alreday exist"});
+            }
+              if(!productData)
+                  // add to subcategorey
+           {
+                const productinstance = new productTemplatecopy({
+                  productid:productId,
+                  productname: req.body.product,
+                  categoreyno:req.body.categoreyid,
+                  brandno:req.body.brandid,
+                  subcatno:req.body.subcatid,
+                  size:req.body.size,
+                  units:req.body.units,
+                  quantity:req.body.quantity,
+                  color:req.body.color,
+                  description:req.body.description,
+                  expdate:req.body.date
+                  
+                });
+                console.log(req.body);
+                productinstance
+                  .save()
+                  .then((data) => {
+                    resp.status(200).json({ message:"product added",DATA:data});
+                  })
+                  .catch((error) => {
+                    resp.status(400).json({ error: error, message: " error " });
+                  });
+             }      
+          }
+        });
+    }
+    catch(error){
+        return resp
+        .status(400)
+        .json({ error: error, message: "Error fetching data" });
+    }  
+  });
 
 
 module.exports = router;

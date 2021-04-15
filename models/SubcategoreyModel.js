@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const subcategoreyTemplate=new mongoose.Schema({
     subcategoreyid:{
         type:String,
-      required:true
+        required:true
     },
     subcategoreyname: {
         type:String,
