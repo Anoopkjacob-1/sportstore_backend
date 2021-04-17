@@ -38,6 +38,10 @@ const productTemplate=new mongoose.Schema({
         type:String,
         required:true
     },
+    unitprice: {
+        type:String,
+        required:true
+    }, 
     expdate: {
         type: Date,
         required:true

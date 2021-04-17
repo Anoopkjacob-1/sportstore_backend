@@ -57,6 +57,7 @@ router.post("/signin", async (req, resp) => {
                 resp.status(200).json({
                   message: "validuser",
                   email: req.body.email,
+                  data:signUpTemplatecopy,
                 });
                 console.log("sucess login");
               }

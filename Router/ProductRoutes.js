@@ -227,10 +227,23 @@ router.put("/brandUpdate", async (req, resp) => {
 // TO ADD SUBCATEGOREY TO SUBCATEGOREY TABLE
 
 router.post("/subcategoreyAdd", async (req, resp) => {
-     
+     if(req.body.categoreydrop==="")
+     {
+       catone=req.body.catone
+     }else
+     {
+       catone=req.body.categoreydrop
+     }
+     if(req.body.branddrop==="")
+     {
+       brandone=req.body.brandone
+     }else
+     {
+       brandone=req.body.categoreydrop
+     }
   const subCatId = uuidv4()
   try{
-    subcategoreyTemplatecopy.findOne({subcategoreyname:req.body.subcatname,categoreyno:req.body.categoreydrop,brandno:req.body.branddrop})
+    subcategoreyTemplatecopy.findOne({subcategoreyname:req.body.subcatname,categoreyno:catone,brandno:brandone})
         .exec((err,subCatdata)=>{
           if(err){
             resp.json( {message : "subcategorey error "});
@@ -245,8 +258,8 @@ router.post("/subcategoreyAdd", async (req, resp) => {
                 const subCatinstance = new subcategoreyTemplatecopy({
 
                   subcategoreyname: req.body.subcatname,
-                  categoreyno:req.body.categoreydrop,
-                  brandno:req.body.branddrop,
+                  categoreyno:catone,
+                  brandno:brandone,
                   subcategoreyid:subCatId
                 });
                 console.log(req.body);
@@ -292,8 +305,22 @@ router.post("/subcategoreyAdd", async (req, resp) => {
 // to get subcat for one based on subcatid
 
   router.post("/subcategoreyGetOne", async (req, resp) => {
+    if(req.body.categoreydrop==="")
+    {
+      catone=req.body.catone
+    }else
+    {
+      catone=req.body.categoreydrop
+    }
+    if(req.body.branddrop==="")
+    {
+      brandone=req.body.brandone
+    }else
+    {
+      brandone=req.body.categoreydrop
+    }
     try{
-      subcategoreyTemplatecopy.find({categoreyno:req.body.categoreydrop,brandno:req.body.branddrop}).populate('categoreyno','categoreyname').populate('brandno','brandname')
+      subcategoreyTemplatecopy.find({categoreyno:catone,brandno:brandone}).populate('categoreyno','categoreyname').populate('brandno','brandname')
     .exec((err,subcatdata)=>{
        if(err){
         resp.json( {message : "subcategorey none"});
@@ -356,6 +383,7 @@ router.put("/subcategoreyUpdate", async (req, resp) => {
 
 router.post("/productAdd", async (req, resp) => {
  console.log(req.body)
+
   const productId = uuidv4()
   try{
     productTemplatecopy.findOne({productname:req.body.product,subcatno:req.body.subcatid,categoreyno:req.body.categoreyid,brandno:req.body.brandid})
@@ -379,6 +407,7 @@ router.post("/productAdd", async (req, resp) => {
                   size:req.body.size,
                   units:req.body.units,
                   quantity:req.body.quantity,
+                  unitprice:req.body.unitprice,
                   color:req.body.color,
                   description:req.body.description,
                   expdate:req.body.date
@@ -405,4 +434,23 @@ router.post("/productAdd", async (req, resp) => {
   });
 
 
+  router.get("/productGet", async (req, resp) => {
+    try{
+      productTemplatecopy.find({}).populate('categoreyno','categoreyname').populate('brandno','brandname').populate('subcatno','subcategoreyname')
+    .exec((err,productdata)=>{
+       if(err){
+        resp.json( {message : "product none"});
+       }else{
+           resp.json(productdata);
+       }
+    });
+    }
+    catch(error){
+        return resp
+        .status(400)
+        .json({ error: err, message: "Error fetching data" });
+    }
+  });   
+
+  
 module.exports = router;
