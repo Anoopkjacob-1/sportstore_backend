@@ -94,16 +94,16 @@ router.put("/categoreyUpdate", async (req, resp) => {
         // Return the updated document instead of the original document
         const options = { returnNewDocument: true };
         return categoreyTemplatecopy.findOneAndUpdate(query, update, options)
-          .then(updatedDocument => {
-            if(updatedDocument) {
+          .then(updatedDocument1 => {
+            if(updatedDocument1) {
               resp.status(200).json({ message: "categorey updated"});
   
-              console.log(`Successfully updated document: ${updatedDocument}.`)
+              console.log(`Successfully updated document: ${updatedDocument1}.`)
             } else {
               resp.status(200).json({ message: "categorey not updated"});
               console.log("categorey not valid.")
             }
-            return updatedDocument
+            return updatedDocument1
           })
           .catch(err => console.error(`Failed to find and update document: ${err}`))
         

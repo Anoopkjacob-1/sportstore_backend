@@ -111,7 +111,7 @@ router.put("/plusquantity", async (req, resp) => {
                                 console.log(`Successfully updated document: ${updatedDocument2}.`)
                               } else {
                                 resp.status(200).json({ message: "Total not updated"});
-                                console.log("brand not valid.")
+                                console.log("Total not updated")
                               }
                               return updatedDocument2
                             })
@@ -120,8 +120,8 @@ router.put("/plusquantity", async (req, resp) => {
                    
             // console.log(`Successfully updated document: ${updatedDocument}.`)
           } else {
-            resp.status(200).json({ message: "subcategorey not updated"});
-            console.log("brand not valid.")
+            resp.status(200).json({ message: "Total not updated"});
+            console.log("Total not valid.")
           }
         })
         .catch(err => console.error(`Failed to find and update document: ${err}`))
@@ -172,7 +172,7 @@ router.put("/minusquantity", async (req, resp) => {
                                 console.log(`Successfully updated document: ${updatedDocument2}.`)
                               } else {
                                 resp.status(200).json({ message: "Total not updated"});
-                                console.log("brand not valid.")
+                                console.log("Total not valid.")
                               }
                               return updatedDocument2
                             })
@@ -181,8 +181,8 @@ router.put("/minusquantity", async (req, resp) => {
                    
             // console.log(`Successfully updated document: ${updatedDocument}.`)
           } else {
-            resp.status(200).json({ message: "subcategorey not updated"});
-            console.log("brand not valid.")
+            resp.status(200).json({ message: "Total not updated"});
+            console.log("Total not valid.")
           }
         })
         .catch(err => console.error(`Failed to find and update document: ${err}`))
@@ -212,5 +212,40 @@ try{
       .json({ error: error, message: "Error updating" });
   }
 });
+
+router.put("/billsubmit",async (req,resp) => {
+  try {
+    console.log(req.body)
+    const filter = {userid:req.body.userid,status:0};
+    // Set some fields in that document
+    const update = {
+      "$set": {
+        "status":1
+      }
+    };
+    // Return the updated document instead of the original document
+    const options = { returnNewDocument: true };
+    return billTemplatecopy.updateMany(filter, update, options)
+      .then(updatedDocument => {
+        if(updatedDocument) {
+          resp.status(200).json({ message: "billed"});
+
+          console.log(`Successfully updated document: ${updatedDocument}.`)
+        } else {
+          resp.status(200).json({ message: "bill not submitted"});
+          console.log("bill not submitted")
+        }
+        return updatedDocument
+      })
+      .catch(err => console.error(`Failed to find and update document: ${err}`))
+    
+} catch (error) {
+  return resp
+    .status(400)
+    .json({ error: error, message: "Error updating" });
+}
+  });
+  
+
 
 module.exports = router;
