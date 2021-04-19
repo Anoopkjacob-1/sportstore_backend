@@ -383,7 +383,7 @@ router.put("/subcategoreyUpdate", async (req, resp) => {
 
 router.post("/productAdd", async (req, resp) => {
  console.log(req.body)
-
+  const url="not uploaded"
   const productId = uuidv4()
   try{
     productTemplatecopy.findOne({productname:req.body.product,subcatno:req.body.subcatid,categoreyno:req.body.categoreyid,brandno:req.body.brandid})
@@ -410,7 +410,8 @@ router.post("/productAdd", async (req, resp) => {
                   unitprice:req.body.unitprice,
                   color:req.body.color,
                   description:req.body.description,
-                  expdate:req.body.date
+                  expdate:req.body.date,
+                  url:url
                   
                 });
                 console.log(req.body);
@@ -452,5 +453,72 @@ router.post("/productAdd", async (req, resp) => {
     }
   });   
 
+
+  router.put("/stockupdate", async (req, resp) => {
+    try {
+        console.log(req.body)
+        const query = { "productid":req.body.productid};
+        // Set some fields in that document
+        const update = {
+          "$inc": {
+            "quantity":+req.body.quantity
+          }
+        };
+        // Return the updated document instead of the original document
+        const options = { returnNewDocument: true };
+        return productTemplatecopy.findOneAndUpdate(query, update, options)
+          .then(updatedDocument => {
+            if(updatedDocument) {
+              resp.status(200).json({ message: "stock updated"});
+  
+              console.log(`Successfully updated document: ${updatedDocument}.`)
+            } else {
+              resp.status(200).json({ message: "stock not updated"});
+              console.log("brand not valid.")
+            }
+            return updatedDocument
+          })
+          .catch(err => console.error(`Failed to find and update document: ${err}`))
+        
+    } catch (error) {
+      return resp
+        .status(400)
+        .json({ error: error, message: "Error updating" });
+    }
+  }); 
+
+
+
+  router.put("/imageupload", async (req, resp) => {
+    try {
+        console.log(req.body)
+        const query = { "productid":req.body.productid};
+        // Set some fields in that document
+        const update = {
+          "$set": {
+            "url":req.body.url
+          }
+        };
+        // Return the updated document instead of the original document
+        const options = { returnNewDocument: true };
+        return productTemplatecopy.findOneAndUpdate(query, update, options)
+          .then(updatedDocument => {
+            if(updatedDocument) {
+              resp.status(200).json({ message: "image updated"});
+              console.log(`Successfully updated document: ${updatedDocument}.`)
+            } else {
+              resp.status(200).json({ message: "image not updated"});
+              console.log("image not valid.")
+            }
+            return updatedDocument
+          })
+          .catch(err => console.error(`Failed to find and update document: ${err}`))
+        
+    } catch (error) {
+      return resp
+        .status(400)
+        .json({ error: error, message: "Error updating" });
+    }
+  }); 
   
 module.exports = router;
