@@ -212,5 +212,24 @@ router.put("/profileActivate", async (req, resp) => {
   }
 });
 
+router.get("/supplierprofile", async (req, resp) => {
+  try{
+  signUpTemplatecopy.find({usetype:"supplier"})
+  .exec((err,userdata)=>{
+     if(err){
+      req.json( {message : "supplier not found",});
+      res.redirect("/");
+     }else{
+         resp.json(userdata);
+     }
+  });
+  }
+  catch(error){
+      return resp
+      .status(400)
+      .json({ error: err, message: "Error fetching data" });
+  }
+});
+
 
 module.exports = router;

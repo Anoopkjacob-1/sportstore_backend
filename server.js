@@ -9,6 +9,7 @@ const cors = require('cors');
 const routesurl=require('./Router/router')
 const productroutesurl=require('./Router/ProductRoutes')
 const billurl=require('./Router/billRoutes')
+const staffurl=require('./Router/supplierRoutes')
 
 
 // const PORT = 4000;
@@ -28,6 +29,7 @@ mongoose.connect(
 app.use('/app',routesurl)
 app.use('/product',productroutesurl)
 app.use('/bill',billurl)
+app.use('/supplier',staffurl)
 
 app.listen(5000, () => {
   console.log("Server is running on Port");
