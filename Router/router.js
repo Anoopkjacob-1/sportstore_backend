@@ -25,6 +25,7 @@ router.post("/signup", async (req, resp) => {
     companyname: req.body.companyname,
     branch: req.body.branch,
     badge: req.body.badgge,
+    url:"Add profilepic"
   });
 
   console.log(req.body);
@@ -230,6 +231,39 @@ router.get("/supplierprofile", async (req, resp) => {
       .json({ error: err, message: "Error fetching data" });
   }
 });
+
+
+router.put("/imageupload", async (req, resp) => {
+  try {
+      console.log(req.body)
+      const query = { "_id":req.body.id};
+      // Set some fields in that document
+      const update = {
+        "$set": {
+          "url":req.body.url
+        }
+      };
+      // Return the updated document instead of the original document
+      const options = { returnNewDocument: true };
+      return signUpTemplatecopy.findOneAndUpdate(query, update, options)
+        .then(updatedDocument => {
+          if(updatedDocument) {
+            resp.status(200).json({ message: "profile updated"});
+            console.log(`Successfully updated document: ${updatedDocument}.`)
+          } else {
+            resp.status(200).json({ message: "profile not updated"});
+            console.log("image not valid.")
+          }
+          return updatedDocument
+        })
+        .catch(err => console.error(`Failed to find and update document: ${err}`))
+      
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: error, message: "Error updating" });
+  }
+}); 
 
 
 module.exports = router;

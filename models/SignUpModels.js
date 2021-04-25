@@ -55,6 +55,10 @@ const signUpTemplate=new mongoose.Schema({
         type:Date,
         default:Date.now()
     },
+    url: {
+        type:String,
+        required:true
+    }
 });
 
 module.exports=mongoose.model('registrations',signUpTemplate)
