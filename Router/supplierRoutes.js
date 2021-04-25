@@ -3,6 +3,7 @@ const router = express.Router();
 
 
 const RequestTemplateCopy = require("../models/RequestModel");
+const ChatTemplatecopy = require("../models/ChatsModel");
 
 router.post("/requestadd", async (req, resp) => {
     try {
@@ -84,10 +85,18 @@ router.post("/requestadd", async (req, resp) => {
         {
           resp.json( {message : "server error"});
         }else{
-          resp.json( {message : "deleted"});
-        }
+          ChatTemplatecopy.findOneAndDelete({"requestid":req.body.id},(err)=>{
+            if(err)
+            {
+              resp.json( {message : "server error"});
+            }else{
+              
+              resp.json( {message : "deleted"});
+            }
+          
+        });
       }
-      )
+      });
     }catch (error) {
         return resp
           .status(400)
@@ -177,6 +186,9 @@ router.put("/REJECT", async (req, resp) => {
       .json({ error: error, message: "Error updating" });
   }
 });
+
+
+// chart data in admin panel 
 
 router.get("/totalcount", async (req, resp) => {
   try{
