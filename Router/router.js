@@ -160,7 +160,7 @@ router.put("/profileEdit", async (req, resp) => {
 
 router.get("/userdata", async (req, resp) => {
   try{
-  signUpTemplatecopy.find({})
+  signUpTemplatecopy.find({"usetype": { "$ne": "Admin"}})
   .exec((err,usersdata)=>{
      if(err){
       req.json( {message : "No users found"});
