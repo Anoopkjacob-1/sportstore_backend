@@ -6,7 +6,7 @@ const ChatTemplatecopy = require("../models/ChatsModel");
 router.post("/chatinsert", async (req, resp) => {
     try {
 
-      ChatTemplatecopy.findOneAndUpdate({requestid:req.body.requestid})
+      ChatTemplatecopy.findOne({requestid:req.body.requestid})
       .exec((err,chatdata)=>{
         if(err){
           resp.json( {message :" error "});

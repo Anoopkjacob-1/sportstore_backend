@@ -73,31 +73,46 @@ router.get("/categoreyGet", async (req, resp) => {
 router.put("/categoreyUpdate", async (req, resp) => {
   try {
     console.log(req.body);
-    const query = { categoreyid: req.body.categoreyid };
-    // Set some fields in that document
-    const update = {
-      $set: {
-        categoreyname: req.body.categoreyname,
-      },
-    };
-    // Return the updated document instead of the original document
-    const options = { returnNewDocument: true };
-    return categoreyTemplatecopy
-      .findOneAndUpdate(query, update, options)
-      .then((updatedDocument1) => {
-        if (updatedDocument1) {
-          resp.status(200).json({ message: "categorey updated" });
-
-          console.log(`Successfully updated document: ${updatedDocument1}.`);
+    categoreyTemplatecopy
+      .findOne({ categoreyname: req.body.categoreyname })
+      .exec((err, catData) => {
+        if (err) {
+          resp.json({ message: "server error " });
         } else {
-          resp.status(200).json({ message: "categorey not updated" });
-          console.log("categorey not valid.");
+          if (catData) {
+            resp.json({ message: "categorey alreday exist" });
+          }
+          if (!catData) {
+            const query = { categoreyid: req.body.categoreyid };
+            // Set some fields in that document
+            const update = {
+              $set: {
+                categoreyname: req.body.categoreyname,
+              },
+            };
+            // Return the updated document instead of the original document
+            const options = { returnNewDocument: true };
+            return categoreyTemplatecopy
+              .findOneAndUpdate(query, update, options)
+              .then((updatedDocument1) => {
+                if (updatedDocument1) {
+                  resp.status(200).json({ message: "categorey updated" });
+
+                  console.log(
+                    `Successfully updated document: ${updatedDocument1}.`
+                  );
+                } else {
+                  resp.status(200).json({ message: "categorey not updated" });
+                  console.log("categorey not valid.");
+                }
+                return updatedDocument1;
+              })
+              .catch((err) =>
+                console.error(`Failed to find and update document: ${err}`)
+              );
+          }
         }
-        return updatedDocument1;
-      })
-      .catch((err) =>
-        console.error(`Failed to find and update document: ${err}`)
-      );
+      });
   } catch (error) {
     return resp.status(400).json({ error: error, message: "Error updating" });
   }
@@ -167,32 +182,47 @@ router.get("/brandGet", async (req, resp) => {
 
 router.put("/brandUpdate", async (req, resp) => {
   try {
-    console.log(req.body);
-    const query = { brandid: req.body.brandid };
-    // Set some fields in that document
-    const update = {
-      $set: {
-        brandname: req.body.brandname,
-      },
-    };
-    // Return the updated document instead of the original document
-    const options = { returnNewDocument: true };
-    return brandTemplatecopy
-      .findOneAndUpdate(query, update, options)
-      .then((updatedDocument) => {
-        if (updatedDocument) {
-          resp.status(200).json({ message: "brand updated" });
-
-          console.log(`Successfully updated document: ${updatedDocument}.`);
+    brandTemplatecopy
+      .findOne({ brandname: req.body.brandname })
+      .exec((err, brandData) => {
+        if (err) {
+          resp.json({ message: "server error " });
         } else {
-          resp.status(200).json({ message: "brand not updated" });
-          console.log("brand not valid.");
+          if (brandData) {
+            resp.json({ message: "brand alreday exist" });
+          }
+          if (!brandData) {
+            console.log(req.body);
+            const query = { brandid: req.body.brandid };
+            // Set some fields in that document
+            const update = {
+              $set: {
+                brandname: req.body.brandname,
+              },
+            };
+            // Return the updated document instead of the original document
+            const options = { returnNewDocument: true };
+            return brandTemplatecopy
+              .findOneAndUpdate(query, update, options)
+              .then((updatedDocument) => {
+                if (updatedDocument) {
+                  resp.status(200).json({ message: "brand updated" });
+
+                  console.log(
+                    `Successfully updated document: ${updatedDocument}.`
+                  );
+                } else {
+                  resp.status(200).json({ message: "brand not updated" });
+                  console.log("brand not valid.");
+                }
+                return updatedDocument;
+              })
+              .catch((err) =>
+                console.error(`Failed to find and update document: ${err}`)
+              );
+          }
         }
-        return updatedDocument;
-      })
-      .catch((err) =>
-        console.error(`Failed to find and update document: ${err}`)
-      );
+      });
   } catch (error) {
     return resp.status(400).json({ error: error, message: "Error updating" });
   }
@@ -322,33 +352,55 @@ router.post("/subcategoreyGetOne", async (req, resp) => {
 router.put("/subcategoreyUpdate", async (req, resp) => {
   try {
     console.log(req.body);
-    const query = { subcategoreyid: req.body.subcategoreyid };
-    // Set some fields in that document
-    const update = {
-      $set: {
+
+    subcategoreyTemplatecopy
+      .findOne({
         subcategoreyname: req.body.subcatname,
         categoreyno: req.body.categoreydrop,
         brandno: req.body.branddrop,
-      },
-    };
-    // Return the updated document instead of the original document
-    const options = { returnNewDocument: true };
-    return subcategoreyTemplatecopy
-      .findOneAndUpdate(query, update, options)
-      .then((updatedDocument) => {
-        if (updatedDocument) {
-          resp.status(200).json({ message: "subcategorey updated" });
-
-          console.log(`Successfully updated document: ${updatedDocument}.`);
-        } else {
-          resp.status(200).json({ message: "subcategorey not updated" });
-          console.log("brand not valid.");
-        }
-        return updatedDocument;
       })
-      .catch((err) =>
-        console.error(`Failed to find and update document: ${err}`)
-      );
+      .exec((err, productData) => {
+        if (err) {
+          resp.json({ message: "server error " });
+        } else {
+          if (productData) {
+            resp.json({ message: "subcategorey alreday exist" });
+          }
+          if (!productData) {
+            const query = { subcategoreyid: req.body.subcategoreyid };
+            // Set some fields in that document
+            const update = {
+              $set: {
+                subcategoreyname: req.body.subcatname,
+                categoreyno: req.body.categoreydrop,
+                brandno: req.body.branddrop,
+              },
+            };
+            // Return the updated document instead of the original document
+            const options = { returnNewDocument: true };
+            return subcategoreyTemplatecopy
+              .findOneAndUpdate(query, update, options)
+              .then((updatedDocument) => {
+                if (updatedDocument) {
+                  resp.status(200).json({ message: "subcategorey updated" });
+
+                  console.log(
+                    `Successfully updated document: ${updatedDocument}.`
+                  );
+                } else {
+                  resp
+                    .status(200)
+                    .json({ message: "subcategorey not updated" });
+                  console.log("brand not valid.");
+                }
+                return updatedDocument;
+              })
+              .catch((err) =>
+                console.error(`Failed to find and update document: ${err}`)
+              );
+          }
+        }
+      });
   } catch (error) {
     return resp.status(400).json({ error: error, message: "Error updating" });
   }
@@ -368,8 +420,8 @@ router.post("/productAdd", async (req, resp) => {
         subcatno: req.body.subcatid,
         categoreyno: req.body.categoreyid,
         brandno: req.body.brandid,
-        size:req.body.size,
-        color: req.body.color
+        size: req.body.size,
+        color: req.body.color,
       })
       .exec((err, productData) => {
         if (err) {
@@ -521,41 +573,54 @@ router.put("/productstep1", async (req, resp) => {
 
 router.put("/productstep2", async (req, resp) => {
   try {
-            const query = { productid: req.body.productid };
-            // Set some fields in that document
-            const update = {
-              $set: {
-                subcatno: req.body.subcatdrop,
-              },
-            };
-            // Return the updated document instead of the original document
-            const options = { returnNewDocument: true };
-            return productTemplatecopy
-              .findOneAndUpdate(query, update, options)
-              .then((updatedDocument) => {
-                if (updatedDocument) {
-                  resp.status(200).json({ message: "updated" });
+    const query = { productid: req.body.productid };
+    // Set some fields in that document
+    const update = {
+      $set: {
+        subcatno: req.body.subcatdrop,
+      },
+    };
+    // Return the updated document instead of the original document
+    const options = { returnNewDocument: true };
+    return productTemplatecopy
+      .findOneAndUpdate(query, update, options)
+      .then((updatedDocument) => {
+        if (updatedDocument) {
+          resp.status(200).json({ message: "updated" });
 
-                  console.log(
-                    `Successfully updated document: ${updatedDocument}.`
-                  );
-                } else {
-                  resp.status(200).json({ message: "not updated" });
-                  console.log("not valid.");
-                }
-                return updatedDocument;
-              })
-              .catch((err) =>
-                console.error(`Failed to find and update document: ${err}`)
-              );
-      
+          console.log(`Successfully updated document: ${updatedDocument}.`);
+        } else {
+          resp.status(200).json({ message: "not updated" });
+          console.log("not valid.");
+        }
+        return updatedDocument;
+      })
+      .catch((err) =>
+        console.error(`Failed to find and update document: ${err}`)
+      );
   } catch (error) {
     return resp.status(400).json({ error: error, message: "Error updating" });
   }
 });
 
 router.put("/productstep3", async (req, resp) => {
-  try {    console.log(req.body)
+  try {
+    console.log(req.body);
+
+    productTemplatecopy
+      .findOne({ 
+         productname: req.body.product, 
+         size: req.body.size,
+         color: req.body.color
+        })
+      .exec((err, productData) => {
+        if (err) {
+          resp.json({ message: "server error " });
+        } else {
+          if (productData) {
+            resp.json({ message: "product alreday exist" });
+          }
+          if (!productData) {
             const query = { productid: req.body.productid };
             // Set some fields in that document
             const update = {
@@ -566,7 +631,7 @@ router.put("/productstep3", async (req, resp) => {
                 quantity: req.body.quantity,
                 unitprice: req.body.unitprice,
                 color: req.body.color,
-                description: req.body.description
+                description: req.body.description,
               },
             };
             // Return the updated document instead of the original document
@@ -589,7 +654,9 @@ router.put("/productstep3", async (req, resp) => {
               .catch((err) =>
                 console.error(`Failed to find and update document: ${err}`)
               );
-      
+          }
+        }
+      });
   } catch (error) {
     return resp.status(400).json({ error: error, message: "Error updating" });
   }

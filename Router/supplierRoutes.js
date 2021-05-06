@@ -62,7 +62,7 @@ router.post("/requestadd", async (req, resp) => {
  
   router.get("/requestget", async (req, resp) => {
     try{
-      RequestTemplateCopy.find({}).sort({date: -1})
+      RequestTemplateCopy.find({}).sort({date: -1}).populate("supplierid", "name")
     .exec((err,requestddata)=>{
        if(err){
         resp.json( {message : "no request"});
