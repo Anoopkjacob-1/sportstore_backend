@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const cartTemplateCopy = require("../models/CartModel");
+const productTemplatecopy = require("../models/ProductModel");
 
 router.post("/add", async (req, resp) => {
   try {
     // console.log(req.body)
-
+ 
     cartTemplateCopy
       .findOne({
         customerid: req.body.loginid,
@@ -31,7 +32,27 @@ router.post("/add", async (req, resp) => {
             cartinstance
               .save()
               .then((data) => {
-                resp.status(200).json({ message: "successfull" });
+               
+
+                // decrese quantity from producttbl
+                const query1 = { "_id":req.body.productid};
+                const update1 = {
+                  "$inc": {
+                    "quantity":-1
+                  }
+                };
+                console.log(query1)
+                const options = { returnNewDocument: true };
+                return productTemplatecopy.findOneAndUpdate(query1, update1, options)
+                  .then((productdata,err) => {
+            
+                      if(err) resp.json({ message: "server error" });
+                      if(!productdata)  resp.json({ message: "no products" });
+                      if(productdata){
+                        resp.status(200).json({ message: "successfull" });
+                      }
+                  });
+
               })
               .catch((error) => {
                 resp.status(400).json({ error: error, message: " error " });
@@ -63,6 +84,7 @@ router.post("/get", async (req, resp) => {
       .json({ error: err, message: "Error fetching data" });
   }
 });
+
 
 
 router.post("/total", async (req, resp) => {
@@ -97,7 +119,24 @@ router.post("/delete",async (req,resp) => {
       {
         resp.json( {message : "server error"});
       }else{
-        resp.json( {message : "deleted"});
+       
+                
+        const query1 = { "productid":req.body.productid};
+        const update1 = {
+          "$inc": {
+            "quantity":+req.body.quantity
+          }
+        };
+        const options = { returnNewDocument: true };
+        return productTemplatecopy.findOneAndUpdate(query1, update1, options)
+          .then((productdata,err) => {
+    
+              if(err) resp.json({ message: "server error" });
+              if(!productdata)  resp.json({ message: "no products" });
+              if(productdata){
+                resp.json( {message : "deleted"});
+              }
+          });
       }
     }
     )
@@ -108,4 +147,102 @@ router.post("/delete",async (req,resp) => {
     }
   });
 
+  router.post("/plus", async (req, resp) => {
+
+    try {        
+    const query1 = { "productid":req.body.productid};
+    const update1 = {
+      "$inc": {
+        "quantity":-1
+      }
+    };
+    const options = { returnNewDocument: true };
+    return productTemplatecopy.findOneAndUpdate(query1, update1, options)
+      .then((productdata,err) => {
+
+          if(err) resp.json({ message: "server error" });
+          if(!productdata)  resp.json({ message: "no products" });
+      
+          if(productdata){
+              const query = { "_id":req.body._id};
+              const update = {
+                "$inc": {
+                  "totalprice":+req.body.unitprice,
+                  "quantity":+1
+                }
+              };
+              const options = { returnNewDocument: true };
+              return cartTemplateCopy.findOneAndUpdate(query, update, options)
+                .then(updatedDocument2 => {
+                  if(updatedDocument2) {
+                    resp.status(200).json({ message:"cart updated"});
+                  } else {
+                    resp.status(200).json({ message: "cart not updated"});
+                  }
+                  return updatedDocument2
+                })
+                .catch(err => console.error(`Failed to find and update document: ${err}`))
+            
+          }
+
+        })
+        .catch(err => console.error(`Failed to find and update document: ${err}`))
+
+    } catch (error) {
+      return resp
+        .status(400)
+        .json({ error: err, message: "Error fetching data" });
+    }
+  });
+  
+
+
+  router.post("/minus", async (req, resp) => {
+
+    try {        
+    const query1 = { "productid":req.body.productid};
+    const update1 = {
+      "$inc": {
+        "quantity":+1
+      }
+    };
+    const options = { returnNewDocument: true };
+    return productTemplatecopy.findOneAndUpdate(query1, update1, options)
+      .then((productdata,err) => {
+
+          if(err) resp.json({ message: "server error" });
+          if(!productdata)  resp.json({ message: "no products" });
+      
+          if(productdata){
+              const query = { "_id":req.body._id};
+              const update = {
+                "$inc": {
+                  "totalprice":-req.body.unitprice,
+                  "quantity":-1
+                }
+              };
+              const options = { returnNewDocument: true };
+              return cartTemplateCopy.findOneAndUpdate(query, update, options)
+                .then(updatedDocument2 => {
+                  if(updatedDocument2) {
+                    resp.status(200).json({ message:"cart updated"});
+                  } else {
+                    resp.status(200).json({ message: "cart not updated"});
+                  }
+                  return updatedDocument2
+                })
+                .catch(err => console.error(`Failed to find and update document: ${err}`))
+            
+          }
+
+        })
+        .catch(err => console.error(`Failed to find and update document: ${err}`))
+
+    } catch (error) {
+      return resp
+        .status(400)
+        .json({ error: err, message: "Error fetching data" });
+    }
+  });
+  
 module.exports = router;

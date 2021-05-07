@@ -33,7 +33,28 @@ router.post("/billAdd", async (req, resp) => {
                   Billinstance
                     .save()
                     .then((data) => {
-                      resp.status(200).json({ message:"bill added",DATA:data});
+
+                    
+                      const query1 = { "_id":req.body.productid};
+                      const update1 = {
+                        "$inc": {
+                          "quantity":-1
+                        }
+                      };
+                      console.log(query1)
+                      const options = { returnNewDocument: true };
+                      return productTemplatecopy.findOneAndUpdate(query1, update1, options)
+                        .then((productdata,err) => {
+                  
+                            if(err) resp.json({ message: "server error" });
+                            if(!productdata)  resp.json({ message: "no products" });
+                            if(productdata){
+                              resp.status(200).json({ message:"bill added",DATA:data});
+                            }
+                        });
+
+
+
                     })
                     .catch((error) => {
                       resp.status(400).json({ error: error, message: " error " });
@@ -202,7 +223,22 @@ try{
     {
       resp.json( {message : "server error"});
     }else{
-      resp.json( {message : "deleted"});
+      const query1 = { "productid":req.body.productid};
+      const update1 = {
+        "$inc": {
+          "quantity":+req.body.quantity
+        }
+      };
+      const options = { returnNewDocument: true };
+      return productTemplatecopy.findOneAndUpdate(query1, update1, options)
+        .then((productdata,err) => {
+  
+            if(err) resp.json({ message: "server error" });
+            if(!productdata)  resp.json({ message: "no products" });
+            if(productdata){
+              resp.json( {message : "deleted"});
+            }
+        });
     }
   }
   )
