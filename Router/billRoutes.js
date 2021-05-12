@@ -215,6 +215,30 @@ router.put("/minusquantity", async (req, resp) => {
   }
 }); 
 
+router.post("/total", async (req, resp) => {
+  try {
+    billTemplatecopy.find({ userid:req.body.userid,status:0 })
+    .exec((err, requestaddata) => {
+        if (err) {
+          resp.json({ message:"server error" });
+        }
+        if(!requestaddata)
+        {
+          resp.json({ message:"cart is empty" });
+        }
+        if(requestaddata.length!==0)
+        {
+          let val =0;
+          let sum= requestaddata.map(item=>{return val=item.Totalprice});
+          let result=sum.reduce((a, b) => a + b);
+          resp.json(result);
+     }});
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: err, message: "Error fetching data" });
+  }
+});
 
 router.post("/billitemDelete",async (req,resp) => {
 try{
