@@ -58,6 +58,10 @@ const signUpTemplate=new mongoose.Schema({
     url: {
         type:String,
         required:true
+    },
+    OTP: {
+        type:String,
+        required:true
     }
 });
 

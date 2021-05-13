@@ -2,15 +2,24 @@ const express = require("express");
 const router = express.Router();
 const signUpTemplatecopy = require("../models/SignUpModels");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+const nodemailer = require("nodemailer");
+
+dotenv.config();
+
 
 // to register the user
 
 router.post("/signup", async (req, resp) => {
   try {
+    var status="INACTIVE";
+
     if (req.body.usetype != "supplier") {
       req.body.companyname = "";
       req.body.branch = "";
       req.body.badgge = "";
+      status="ACTIVE "
     }
     const salt = await bcrypt.genSalt(10);
     const securepassword = await bcrypt.hash(req.body.password, salt);
@@ -25,30 +34,142 @@ router.post("/signup", async (req, resp) => {
             resp.json({ message: "email alreday exist" });
           }
           if (!productData) {
-            const signUpUser = new signUpTemplatecopy({
-              name: req.body.name,
-              email: req.body.email,
-              phone: req.body.phone,
-              password: securepassword,
-              address: req.body.address,
-              city: req.body.city,
-              zip: req.body.zip,
-              usetype: req.body.usetype,
-              companyname: req.body.companyname,
-              branch: req.body.branch,
-              badge: req.body.badgge,
-              url: "Add profilepic",
-            });
 
-            console.log(req.body);
-            signUpUser
-              .save()
-              .then((data) => {
-                resp.status(200).json({ message: "user registered" });
-              })
-              .catch((error) => {
-                resp.status(400).json({ error: error, message: " error " });
-              });
+            // jwt otp
+
+            let info = { email: req.body.email, password: securepassword };
+            const token = jwt.sign(info, process.env.JWTSECRETKEY,{ expiresIn: 5 * 60 });
+            let url = `http://localhost:5000/app/verify?token=${token}`;
+
+            const transport = nodemailer.createTransport({
+              host: process.env.MAIL_HOST,
+              port: process.env.MAIL_PORT,
+              auth: {
+                user: process.env.MAIL_USER,
+                pass: process.env.MAIL_PASS,
+              },
+            });
+            var mailoptions = {
+              from: process.env.MAIL_FROM,
+              to: req.body.email,
+              subject: "Email verification",
+              html: `<h3><a href="${url}">click here to verify email</a></h3>`,
+            };
+
+           transport.sendMail(mailoptions, function (err,response){
+              if (err) {
+                response
+                  .status(200)
+                  .json({ error: err, message: "email server error" });
+              } else {
+                const signUpUser = new signUpTemplatecopy({
+                  name: req.body.name,
+                  email: req.body.email,
+                  phone: req.body.phone,
+                  password: securepassword,
+                  address: req.body.address,
+                  city: req.body.city,
+                  zip: req.body.zip,
+                  usetype: req.body.usetype,
+                  companyname: req.body.companyname,
+                  branch: req.body.branch,
+                  badge: req.body.badgge,
+                  status:status,
+                  url: "Add profilepic",
+                  OTP: token,
+                });
+
+                console.log(req.body);
+                signUpUser
+                  .save()
+                  .then((data) => {
+                    resp.status(200).json({ message: "user registered" });
+                  })
+                  .catch((error) => {
+                    resp.status(400).json({ error: error, message: " error " });
+                  });
+              }
+            });
+          }
+        }
+      });
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: error, message: "Error fetching data" });
+  }
+});
+
+// staffreg
+
+router.post("/staffreg", async (req, resp) => {
+  try {
+ 
+    const salt = await bcrypt.genSalt(10);
+    const securepassword = await bcrypt.hash(req.body.password, salt);
+
+    signUpTemplatecopy
+      .findOne({ email: req.body.email })
+      .exec((err, productData) => {
+        if (err) {
+          resp.json({ message: "server error " });
+        } else {
+          if (productData) {
+            resp.json({ message: "email alreday exist" });
+          }
+          if (!productData) {
+
+            const transport = nodemailer.createTransport({
+              host: process.env.MAIL_HOST,
+              port: process.env.MAIL_PORT,
+              auth: {
+                user: process.env.MAIL_USER,
+                pass: process.env.MAIL_PASS,
+              },
+            });
+            var mailoptions = {
+              from: process.env.MAIL_FROM,
+              to: req.body.email,
+              subject: "STAFF Credintials",
+              html: `<p>email:${req.body.email}</br>
+               password:${req.body.password}
+              </p>`,
+            };
+
+           transport.sendMail(mailoptions, function (err,response){
+              if (err) {
+                response
+                  .status(200)
+                  .json({ error: err, message: "email server error" });
+              } else {
+                const signUpUser = new signUpTemplatecopy({
+                  name: req.body.name,
+                  email: req.body.email,
+                  phone: req.body.phone,
+                  password: securepassword,
+                  address: req.body.address,
+                  city: req.body.city,
+                  zip: req.body.zip,
+                  usetype: req.body.usetype,
+                  companyname: "",
+                  branch: "",
+                  badge: "",
+                  status:"ACTIVE ",
+                  url: "Add profilepic",
+                  OTP: "verified",
+                });
+
+                console.log(req.body);
+                signUpUser
+                  .save()
+                  .then((data) => {
+                    resp.status(200).json({ message: "user registered" });
+                  })
+                  .catch((error) => {
+                    resp.status(400).json({ error: error, message: " error " });
+                  });
+              }
+            });
           }
         }
       });
@@ -104,6 +225,49 @@ router.post("/signin", async (req, resp) => {
       .json({ error: err, message: "email and password needed" });
   }
 });
+
+// to verify
+router.get("/verify" ,async (req, resp) => {
+ jwt.verify(req.query.token,process.env.JWTSECRETKEY,function(err, decoded) {
+  if (err) {
+    console.log(err.message)
+      resp.send(`<html> 
+        <body>
+        <h1>${err.message}</h1>
+        </body>
+    </html>`);
+  }
+  else{            
+    const query = { email: decoded.email,password:decoded.password };
+    const update = {
+      $set: {
+        OTP: "verified"
+      },
+    };
+    const options = { returnNewDocument: true };
+    return signUpTemplatecopy
+      .findOneAndUpdate(query, update, options)
+      .then((updatedDocument) => {
+        if (updatedDocument) {
+             resp.send(`<html> 
+              <body>
+              <h1>Email verified</h1></br>
+              <p><a href="http://localhost:3000/login">click here</a></p>
+              </body>
+          </html>`);
+
+        } else {
+          resp.status(200).json({ message: "server error" });
+        }
+        return updatedDocument;
+      })
+      .catch((err) =>
+        console.error(`Failed to find and update document: ${err}`)
+      ); 
+  }
+});
+});
+
 
 // to get informatiopn about a user with given email in profile pages
 
