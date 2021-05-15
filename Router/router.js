@@ -40,10 +40,9 @@ router.post("/signup", async (req, resp) => {
             let info = { email: req.body.email, password: securepassword };
             const token = jwt.sign(info, process.env.JWTSECRETKEY,{ expiresIn: 5 * 60 });
             let url = `http://localhost:5000/app/verify?token=${token}`;
-
+            console.log(url)
             const transport = nodemailer.createTransport({
               host: process.env.MAIL_HOST,
-              port: process.env.MAIL_PORT,
               auth: {
                 user: process.env.MAIL_USER,
                 pass: process.env.MAIL_PASS,
@@ -58,9 +57,8 @@ router.post("/signup", async (req, resp) => {
 
            transport.sendMail(mailoptions, function (err,response){
               if (err) {
-                response
-                  .status(200)
-                  .json({ error: err, message: "email server error" });
+                console.log(err)
+                resp.status(200).json({ error: err, message: "email server error" });
               } else {
                 const signUpUser = new signUpTemplatecopy({
                   name: req.body.name,
@@ -121,7 +119,6 @@ router.post("/staffreg", async (req, resp) => {
 
             const transport = nodemailer.createTransport({
               host: process.env.MAIL_HOST,
-              port: process.env.MAIL_PORT,
               auth: {
                 user: process.env.MAIL_USER,
                 pass: process.env.MAIL_PASS,
@@ -138,7 +135,8 @@ router.post("/staffreg", async (req, resp) => {
 
            transport.sendMail(mailoptions, function (err,response){
               if (err) {
-                response
+                console.log(err)
+                resp
                   .status(200)
                   .json({ error: err, message: "email server error" });
               } else {
@@ -268,6 +266,166 @@ router.get("/verify" ,async (req, resp) => {
 });
 });
 
+
+// to otp resend
+
+
+router.post("/otpresend", async (req, resp) => {
+  try {
+    signUpTemplatecopy
+      .findOne({ email: req.body.email })
+      .then((signUpTemplatecopy,err) => {
+        if (err) {
+          resp.json({ message: "server error " });
+        } 
+        if (signUpTemplatecopy) {
+              if (signUpTemplatecopy.OTP==="verified") {
+                resp.status(200).json({ error: err, message: "Alearedy verified" });
+              }else{
+
+                let info = { email: req.body.email, password: signUpTemplatecopy.password };
+                const token = jwt.sign(info, process.env.JWTSECRETKEY,{ expiresIn: 5 * 60 });
+                let url = `http://localhost:5000/app/verify?token=${token}`;
+  
+          
+            const transport = nodemailer.createTransport({
+                host: process.env.MAIL_HOST,
+                auth: {
+                  user: process.env.MAIL_USER,
+                  pass: process.env.MAIL_PASS,
+                },
+              });
+              var mailoptions = {
+                from: process.env.MAIL_FROM,
+                to: req.body.email,
+                subject: "Email verification (OTP resend)",
+                html: `<h3><a href="${url}">click here to verify email</a></h3>`,
+              };
+  
+             transport.sendMail(mailoptions, function (err,response){
+                if (err) {
+                  console.log(err)
+                  resp.status(200).json({ error: err, message: "email server error" });
+                } else {
+                  resp.status(200).json({
+                    message: "resended"
+                  });
+                  console.log("resended");
+                }
+              });
+            } 
+        } else {
+          resp.status(200).json({
+            message: "invalid Email",
+          });
+          console.log("invalid Email");
+        }
+      });
+  } catch (error) {
+    console.log("email error");
+    return resp
+      .status(400)
+      .json({ error: err, message: "email and password needed" });
+  }
+});
+
+// forgot passwword
+
+router.post("/forgotpassword", async (req, resp) => {
+  try {
+    signUpTemplatecopy
+      .findOne({ email: req.body.email })
+      .then((signUpTemplatecopy,err) => {
+        if (err) {
+          resp.json({ message: "server error " });
+        } 
+        if (signUpTemplatecopy) {
+              if (signUpTemplatecopy.OTP!=="verified") {
+                resp.status(200).json({ error: err, message: "NoT verified email" });
+              }else{
+
+                let info = { email: req.body.email, password: signUpTemplatecopy.password };
+                const token = jwt.sign(info, process.env.JWTSECRETKEY,{ expiresIn: 5 * 60 });
+
+            const transport = nodemailer.createTransport({
+                host: process.env.MAIL_HOST,
+                auth: {
+                  user: process.env.MAIL_USER,
+                  pass: process.env.MAIL_PASS,
+                },
+              });
+              var mailoptions = {
+                from: process.env.MAIL_FROM,
+                to: req.body.email,
+                subject: "Forgot password",
+                html: `<h3>Token:<strong>${token}</strong></h3><br>
+                 <p>copy and paste above token </p>`,
+              };
+  
+             transport.sendMail(mailoptions, function (err,response){
+                if (err) {
+                  console.log(err)
+                  resp.status(200).json({ error: err, message: "email server error" });
+                } else {
+                  resp.status(200).json({
+                    message: "Token sended",
+                    token:"tokensended",
+                  });
+                  console.log("tokensended");
+                }
+              });
+            } 
+        } else {
+          resp.status(200).json({
+            message: "Email is not Registered",
+          });
+          console.log("invalid Email");
+        }
+      });
+  } catch (error) {
+    console.log("email error");
+    return resp
+      .status(400)
+      .json({ error: err, message: "email and password needed" });
+  }
+});
+// forgot and change two new password
+
+router.post("/newpassword" ,async (req, resp) => {
+
+  const salt = await bcrypt.genSalt(10);
+  const securepassword = await bcrypt.hash(req.body.newpassword, salt);
+
+  jwt.verify(req.body.token,process.env.JWTSECRETKEY,function(err, decoded) {
+   if (err) {
+    resp.json({ message: err.message });
+   }
+   else{ 
+     const query = { email: decoded.email,password:decoded.password };
+     const update = {
+       $set: {
+         password:securepassword
+       },
+     };
+     const options = { returnNewDocument: true };
+     return signUpTemplatecopy
+       .findOneAndUpdate(query, update, options)
+       .then((updatedDocument) => {
+         if (updatedDocument) {
+          resp.json({ message: "password updated"});
+ 
+         } else {
+           resp.status(200).json({ message: "server error" });
+         }
+         return updatedDocument;
+       })
+       .catch((err) =>
+         console.error(`Failed to find and update document: ${err}`)
+       ); 
+   }
+ });
+ });
+ 
 
 // to get informatiopn about a user with given email in profile pages
 
