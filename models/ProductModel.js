@@ -18,6 +18,14 @@ const productTemplate=new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "subcategorey"
     },
+    Totalrating:{
+        type:Number,
+        default:-1
+     },
+     noofpeople:{
+        type:Number,
+        default:0
+     },
     productname: {
         type:String,
         required:true

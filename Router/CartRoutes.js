@@ -67,8 +67,9 @@ router.post("/add", async (req, resp) => {
 
 router.post("/get", async (req, resp) => {
   try {
+    console.log(req.body)
     cartTemplateCopy
-      .find({ customerid: req.body.customerid, status: "cart" })
+      .find({ customerid: req.body.customerid, status: req.body.status })
       .populate("productid")
       .sort({ date: -1 })
       .exec((err, requestaddata) => {
@@ -84,7 +85,6 @@ router.post("/get", async (req, resp) => {
       .json({ error: err, message: "Error fetching data" });
   }
 });
-
 
 
 router.post("/total", async (req, resp) => {
@@ -244,5 +244,28 @@ router.post("/delete",async (req,resp) => {
         .json({ error: err, message: "Error fetching data" });
     }
   });
+
+  
+router.post("/onlineorder", async (req, resp) => {
+  try {
+    console.log(req.body)
+    cartTemplateCopy
+      .find({ customerid: req.body.customerid, status: { $ne: "cart" } })
+      .populate("productid")
+      .sort({ date: -1 })
+      .exec((err, requestaddata) => {
+        if (err) {
+          resp.json({ message: "No request" });
+        } else {
+          resp.json(requestaddata);
+        }
+      });
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: err, message: "Error fetching data" });
+  }
+});
+
   
 module.exports = router;

@@ -38,7 +38,7 @@ router.post("/chatinsert", async (req, resp) => {
           });
      }
        if(!chatdata)
-              
+           
          {
               const chattinstance = new ChatTemplatecopy({
                 requestid: req.body.requestid,

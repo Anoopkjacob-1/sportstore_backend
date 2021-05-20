@@ -23,6 +23,10 @@ const cartTemplate=new mongoose.Schema({
         type:String,
         default:"cart"
     },
+    rated: {
+        type:String,
+        default:"notrated"
+    },
     date: {
         type:Date,
         default:Date.now

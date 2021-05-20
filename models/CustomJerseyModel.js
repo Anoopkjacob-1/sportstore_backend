@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
+const Schema = mongoose.Schema;
 
 const JerseyTemplate=new mongoose.Schema({
     userid:{
-        type:String,
-         required:true
+        type: Schema.Types.ObjectId,
+        ref: "registrations"
        },
     date: {
         type:Number,

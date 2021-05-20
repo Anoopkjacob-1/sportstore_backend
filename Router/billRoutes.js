@@ -7,8 +7,7 @@ const productTemplatecopy = require("../models/ProductModel");
 
 //  ADD TO BILL
 
-router.post("/billAdd", async (req, resp) => {
-     
+router.post("/billAdd", async (req, resp) => {    
     const billid = uuidv4()
     try{  
        billTemplatecopy.findOne({productId:req.body.productid,userid:req.body.userid,status:0})
@@ -93,6 +92,23 @@ router.post("/billGet", async (req, resp) => {
   }
 });
 
+router.get("/historey", async (req, resp) => {
+  try{
+    billTemplatecopy.find({userid:req.query.userid,status:1}).populate('productId')
+  .exec((err,billdata)=>{
+     if(err){
+      resp.json( {message : "bill section empty"});
+     }else{
+         resp.json(billdata);
+     }
+  });
+  }
+  catch(error){
+      return resp
+      .status(400)
+      .json({ error: err, message: "Error fetching data" });
+  }
+});
 
 router.put("/plusquantity", async (req, resp) => {
   try {
