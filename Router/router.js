@@ -29,6 +29,7 @@ router.post("/signup", async (req, resp) => {
       .exec((err, productData) => {
         if (err) {
           resp.json({ message: "server error " });
+          console.log(err)
         } else {
           if (productData) {
             resp.json({ message: "email alreday exist" });

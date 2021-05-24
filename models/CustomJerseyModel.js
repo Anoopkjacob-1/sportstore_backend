@@ -41,6 +41,10 @@ const JerseyTemplate=new mongoose.Schema({
         type:String,
         default:"pending"
     },
+    payement: {
+        type:String,
+        default:"not paid"
+    },
     Amount: {
         type:Number,
         default:0

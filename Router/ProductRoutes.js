@@ -428,6 +428,7 @@ router.post("/productAdd", async (req, resp) => {
       .exec((err, productData) => {
         if (err) {
           resp.json({ message: "product error " });
+          console.log(err)
         } else {
           if (productData) {
             resp.json({ message: "product alreday exist" });
@@ -619,10 +620,10 @@ router.put("/productstep3", async (req, resp) => {
         if (err) {
           resp.json({ message: "server error " });
         } else {
-          if (productData) {
-            resp.json({ message: "product alreday exist" });
-          }
           if (!productData) {
+            resp.json({ message: "No product Found" });
+          }
+          if (productData) {
             const query = { productid: req.body.productid };
             // Set some fields in that document
             const update = {
@@ -863,6 +864,30 @@ router.post("/rateinsert", async (req, resp) => {
   }
 });
 
+//                                                       serach product
+//                                                      ------------
+router.get("/search", async (req, resp) => {
+  try { 
+    const query=req.query.search
+
+    productTemplatecopy
+      .find({ "productname": new RegExp(query, "i")})
+      .populate("categoreyno", "categoreyname")
+      .populate("brandno", "brandname")
+      .populate("subcatno", "subcategoreyname")
+      .exec((err, productdata) => {
+        if (err) {
+          resp.json({ message: "product none" });
+        } else {
+          resp.json(productdata);
+        }
+      })
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: error, message: "Error fetching data" });
+  }
+});
 
 
 module.exports = router;

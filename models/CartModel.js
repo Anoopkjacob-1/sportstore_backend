@@ -27,6 +27,14 @@ const cartTemplate=new mongoose.Schema({
         type:String,
         default:"notrated"
     },
+    payorderid: {
+        type:String,
+        default:"notpayed"
+    },
+    payementid: {
+        type:String,
+        default:"notpayed"
+    },
     date: {
         type:Date,
         default:Date.now

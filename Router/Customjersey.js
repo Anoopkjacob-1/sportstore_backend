@@ -52,7 +52,7 @@ router.post("/add", async (req, resp) => {
  
 router.get("/jerseyrequestget", async (req, resp) => {
   try{
-    jerseyTemplatecopy.find({}).sort({date: -1}).populate("userid", "name")
+    jerseyTemplatecopy.find({}).sort({date: -1}).populate("userid")
   .exec((err,requestddata)=>{
      if(err){
       resp.json( {message : "no request"});

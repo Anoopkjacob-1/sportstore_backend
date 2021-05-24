@@ -13,6 +13,7 @@ const staffurl=require('./Router/supplierRoutes')
 const chaturl=require('./Router/chat')
 const carturl=require('./Router/CartRoutes')
 const jerseyurl=require('./Router/Customjersey')
+const payement=require('./Router/payement')
 
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use('/supplier',staffurl)
 app.use('/chat',chaturl)
 app.use('/cart',carturl)
 app.use('/jersey',jerseyurl)
+app.use('/payment',payement)
 
 
 

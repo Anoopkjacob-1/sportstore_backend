@@ -267,5 +267,4 @@ router.post("/onlineorder", async (req, resp) => {
   }
 });
 
-  
 module.exports = router;
