@@ -53,6 +53,9 @@ router.post("/success", async (req, res) => {
                                                 "status":"cashpayed",
                                                 "payorderid":req.body.razorpayOrderId,
                                                 "payementid":req.body.razorpayPaymentId,
+                                                "shippingaddress":req.body.addressline,
+                                                "pin":req.body.pin,
+                                                
                                             }
                                             };
                                             const options = { returnNewDocument: true };
@@ -90,6 +93,8 @@ router.post("/success", async (req, res) => {
                                               const update = {
                                                 $set: {
                                                   payement:"paid",
+                                                  shippingaddress:req.body.addressline,
+                                                  pin:req.body.pin,
                                                 },
                                               };
                                               // Return the updated document instead of the original document
@@ -104,6 +109,7 @@ router.post("/success", async (req, res) => {
                                                       paymentId: req.body.razorpayPaymentId,
                                                       user:req.body.receipt,
                                                       payfrom:req.body.payfrom,
+                                                    
                                                   });
                                                   } else {
                                                     res.status(200).json({ message: "payement canceled"});

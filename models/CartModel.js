@@ -35,6 +35,18 @@ const cartTemplate=new mongoose.Schema({
         type:String,
         default:"notpayed"
     },
+    shippingaddress: {
+        type:String,
+        default:"null"
+    },
+    pin: {
+        type:String,
+        default:"null"
+    },
+    city: {
+        type:String,
+        default:"Kottayam"
+    },
     date: {
         type:Date,
         default:Date.now

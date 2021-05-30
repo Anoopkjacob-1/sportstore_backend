@@ -12,6 +12,7 @@ dotenv.config();
 // to register the user
 
 router.post("/signup", async (req, resp) => {
+  console.log(req.body)
   try {
     var status="INACTIVE";
 
@@ -19,6 +20,7 @@ router.post("/signup", async (req, resp) => {
       req.body.companyname = "";
       req.body.branch = "";
       req.body.badgge = "";
+      req.body.licence="";
       status="ACTIVE "
     }
     const salt = await bcrypt.genSalt(10);
@@ -73,6 +75,7 @@ router.post("/signup", async (req, resp) => {
                   companyname: req.body.companyname,
                   branch: req.body.branch,
                   badge: req.body.badgge,
+                  licence:req.body.licence,
                   status:status,
                   url: "Add profilepic",
                   OTP: token,
@@ -153,6 +156,7 @@ router.post("/staffreg", async (req, resp) => {
                   companyname: "",
                   branch: "",
                   badge: "",
+                  licence:" ",
                   status:"ACTIVE ",
                   url: "Add profilepic",
                   OTP: "verified",

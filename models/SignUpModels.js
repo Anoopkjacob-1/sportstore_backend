@@ -47,6 +47,10 @@ const signUpTemplate=new mongoose.Schema({
         type:String,
         required:function(){return this.usetype==='supplier'}
     },
+    licence: {
+        type:String,
+        required:function(){return this.usetype==='supplier'}
+    },
     status: {
         type:String,
         default:'INACTIVE'

@@ -490,6 +490,27 @@ router.get("/productGet", async (req, resp) => {
   }
 });
 
+router.post("/filterporduct", async (req, resp) => {
+  try {
+    productTemplatecopy
+      .find({categoreyno:req.body.categoreydrop,brandno:req.body.branddrop})
+      .populate("categoreyno", "categoreyname")
+      .populate("brandno", "brandname")
+      .populate("subcatno", "subcategoreyname")
+      .exec((err, productdata) => {
+        if (err) {
+          resp.json({ message: "product none" });
+        } else {
+          resp.json(productdata);
+        }
+      });
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: err, message: "Error fetching data" });
+  }
+});
+
 router.put("/stockupdate", async (req, resp) => {
   try {
     console.log(req.body);
