@@ -102,7 +102,7 @@ router.post("/signup", async (req, resp) => {
   }
 });
 
-// staffreg
+// staffreg & deliverboy
 
 router.post("/staffreg", async (req, resp) => {
   try {

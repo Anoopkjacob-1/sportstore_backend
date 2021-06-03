@@ -256,14 +256,14 @@ router.put("/AMOUNTSEND", async (req, resp) => {
   router.post("/chatinsert", async (req, resp) => {
     try {
 
-      JerseyChatTemplatecopy.findOne({jerseyorderid:req.body._id})
+      JerseyChatTemplatecopy.findOne({jerseyorderid:req.body.requestid})
       .exec((err,chatdata)=>{
         if(err){
           resp.json( {message :" error "});
         }else{
      if(chatdata)
      {
-      const query = { "requestid":req.body._id };
+      const query = { "jerseyorderid":req.body.requestid };
       const update = {
         "$push":  {
         "message": 
@@ -291,7 +291,7 @@ router.put("/AMOUNTSEND", async (req, resp) => {
               
          {
               const chattinstance = new JerseyChatTemplatecopy({
-                jerseyorderid: req.body._id,
+                jerseyorderid: req.body.requestid,
                   message:[{ 
                     user:req.body.user,
                     content:req.body.text
@@ -321,7 +321,7 @@ router.put("/AMOUNTSEND", async (req, resp) => {
   router.post("/chatget", async (req, resp) => {
     
     try{
-      JerseyChatTemplatecopy.find({jerseyorderid:req.body._id})
+      JerseyChatTemplatecopy.find({jerseyorderid:req.body.requestid})
     .exec((err,requestddata)=>{
        if(err){
         resp.json( {message : "no request"});

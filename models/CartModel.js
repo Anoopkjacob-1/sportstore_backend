@@ -47,6 +47,14 @@ const cartTemplate=new mongoose.Schema({
         type:String,
         default:"Kottayam"
     },
+    deliverycontact: {
+        type:String,
+        default:"null"
+    },
+    deliveryid: {
+        type:String,
+        default:"null"
+    },
     date: {
         type:Date,
         default:Date.now

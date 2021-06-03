@@ -57,6 +57,14 @@ const JerseyTemplate=new mongoose.Schema({
         type:String,
         default:"Kottayam"
     },
+    deliverycontact: {
+        type:String,
+        default:"null"
+    },
+    deliveryid: {
+        type:String,
+        default:"null"
+    },
     Amount: {
         type:Number,
         default:0

@@ -14,7 +14,7 @@ const chaturl=require('./Router/chat')
 const carturl=require('./Router/CartRoutes')
 const jerseyurl=require('./Router/Customjersey')
 const payement=require('./Router/payement')
-
+const delivery=require('./Router/deliveryRoutes')
 
 dotenv.config();
 app.use(cors());
@@ -35,6 +35,7 @@ app.use('/chat',chaturl)
 app.use('/cart',carturl)
 app.use('/jersey',jerseyurl)
 app.use('/payment',payement)
+app.use('/delivery',delivery)
 
 
 
