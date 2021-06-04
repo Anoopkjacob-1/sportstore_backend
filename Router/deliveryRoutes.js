@@ -201,5 +201,46 @@ router.get("/jerseydeliveryorder", async (req, resp) => {
     }
   });
 
+  router.get("/onlinedeliveryhist", async (req, resp) => {
+    try {
+      cartTemplateCopy
+        .find({ status:"delivered",deliveryid:req.query.id })
+        .populate("productid")
+        .populate("customerid")
+        .sort({ date: -1 })
+        .exec((err, requestaddata) => {
+          if (err) {
+            resp.json({ message: "No request" });
+          } else {
+            resp.json(requestaddata);
+          }
+        });
+    } catch (error) {
+      return resp
+        .status(400)
+        .json({ error: err, message: "Error fetching data" });
+    }
+  });
+
+  router.get("/jerseydeliveryhist", async (req, resp) => {
+    try{
+      jerseyTemplatecopy.find({status:"delivered",deliveryid:req.query.id}).sort({date: -1}).populate("userid")
+    .exec((err,requestddata)=>{
+       if(err){
+        resp.json( {message : "no request"});
+       }else{
+           resp.json(requestddata);
+       }
+    });
+    }
+    catch(error){
+        return resp
+        .status(400)
+        .json({ error: err, message: "Error fetching data" });
+    }
+  }); 
+
+
+
 
 module.exports = router;

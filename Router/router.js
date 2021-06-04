@@ -500,6 +500,44 @@ router.put("/profileEdit", async (req, resp) => {
   }
 });
 
+//profile company data 
+
+router.put("/companyEdit", async (req, resp) => {
+  try {
+    const query = { email: req.body.email };
+    // Set some fields in that document
+    const update = {
+      $set: {
+        companyname: req.body.companyname,
+        branch: req.body.branch,
+         badge: req.body.badgge,
+        licence: req.body.licence,
+      },
+    };
+    // Return the updated document instead of the original document
+    const options = { returnNewDocument: true };
+    return signUpTemplatecopy
+      .findOneAndUpdate(query, update, options)
+      .then((updatedDocument) => {
+        if (updatedDocument) {
+          resp.status(200).json({ message: "profile updated" });
+
+          console.log(`Successfully updated document: ${updatedDocument}.`);
+        } else {
+          resp.status(200).json({ message: "profile not updated" });
+          console.log("No document matches the provided email.");
+        }
+        return updatedDocument;
+      })
+      .catch((err) =>
+        console.error(`Failed to find and update document: ${err}`)
+      );
+  } catch (error) {
+    return resp.status(400).json({ error: error, message: "Error updating" });
+  }
+});
+
+
 // complete user data from admin panel
 
 router.get("/userdata", async (req, resp) => {
