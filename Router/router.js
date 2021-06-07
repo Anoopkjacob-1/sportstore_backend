@@ -156,7 +156,7 @@ router.post("/staffreg", async (req, resp) => {
                   companyname: "",
                   branch: "",
                   badge: "",
-                  licence:" ",
+                  licence:req.body.licence,
                   status:"ACTIVE ",
                   url: "Add profilepic",
                   OTP: "verified",
@@ -363,7 +363,8 @@ router.post("/forgotpassword", async (req, resp) => {
                 from: process.env.MAIL_FROM,
                 to: req.body.email,
                 subject: "Forgot password",
-                html: `<h3>Token:<strong>${token}</strong></h3><br>
+                html: `<h3>Copy this Token:-> <br>
+                  <strong>${token}</strong></h3><br>
                  <p>copy and paste above token </p>`,
               };
   

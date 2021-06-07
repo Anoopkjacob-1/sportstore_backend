@@ -7,7 +7,7 @@ const brandTemplatecopy = require("../models/BrandModels");
 const subcategoreyTemplatecopy = require("../models/SubcategoreyModel");
 const productTemplatecopy = require("../models/ProductModel");
 const RateTemplatecopy = require("../models/RatingModel");
-const cartTemplatecopy=require("../models/CartModel")
+const cartTemplatecopy = require("../models/CartModel");
 
 //                                                     CATEGOREY ROUTES
 //                                                     ---------------
@@ -428,7 +428,7 @@ router.post("/productAdd", async (req, resp) => {
       .exec((err, productData) => {
         if (err) {
           resp.json({ message: "product error " });
-          console.log(err)
+          console.log(err);
         } else {
           if (productData) {
             resp.json({ message: "product alreday exist" });
@@ -472,7 +472,7 @@ router.post("/productAdd", async (req, resp) => {
 router.get("/productGet", async (req, resp) => {
   try {
     productTemplatecopy
-      .find({})
+      .find({ Status: "Active" })
       .populate("categoreyno", "categoreyname")
       .populate("brandno", "brandname")
       .populate("subcatno", "subcategoreyname")
@@ -490,10 +490,45 @@ router.get("/productGet", async (req, resp) => {
   }
 });
 
+// delete
+
+router.delete("/productdelete", async (req, resp) => {
+  try {
+    console.log(req.query)
+    const query = { _id: req.query.proid, Status: "Active" };
+    const update = {
+      $set: {
+        Status: "INActive",
+      },
+    };
+    const options = { returnNewDocument: true };
+    return productTemplatecopy
+      .findOneAndUpdate(query, update, options)
+      .then((updatedDocument) => {
+        if (updatedDocument) {
+          resp.status(200).json({ message: "Product deleted" });
+          console.log(`Successfully updated document: ${updatedDocument}.`);
+        } else {
+          resp.status(200).json({ message: "Product not deleted" });
+        }
+        return updatedDocument;
+      })
+      .catch((err) =>
+        console.error(`Failed to find and update document: ${err}`)
+      );
+  } catch (error) {
+    return resp.status(400).json({ error: error, message: "Error updating" });
+  }
+});
+
 router.post("/filterporduct", async (req, resp) => {
   try {
     productTemplatecopy
-      .find({categoreyno:req.body.categoreydrop,brandno:req.body.branddrop})
+      .find({
+        categoreyno: req.body.categoreydrop,
+        brandno: req.body.branddrop,
+        Status: "Active",
+      })
       .populate("categoreyno", "categoreyname")
       .populate("brandno", "brandname")
       .populate("subcatno", "subcategoreyname")
@@ -514,7 +549,7 @@ router.post("/filterporduct", async (req, resp) => {
 router.put("/stockupdate", async (req, resp) => {
   try {
     console.log(req.body);
-    const query = { productid: req.body.productid };
+    const query = { productid: req.body.productid, Status: "Active" };
     // Set some fields in that document
     const update = {
       $inc: {
@@ -559,7 +594,7 @@ router.put("/productstep1", async (req, resp) => {
             resp.json({ message: "This combination dont exist" });
           }
           if (subCatdata) {
-            const query = { productid: req.body.productid };
+            const query = { productid: req.body.productid, Status: "Active" };
             // Set some fields in that document
             const update = {
               $set: {
@@ -597,7 +632,7 @@ router.put("/productstep1", async (req, resp) => {
 
 router.put("/productstep2", async (req, resp) => {
   try {
-    const query = { productid: req.body.productid };
+    const query = { productid: req.body.productid, Status: "Active" };
     // Set some fields in that document
     const update = {
       $set: {
@@ -632,11 +667,10 @@ router.put("/productstep3", async (req, resp) => {
     console.log(req.body);
 
     productTemplatecopy
-      .findOne({ 
-         productname: req.body.product, 
-         size: req.body.size,
-         color: req.body.color
-        })
+      .findOne({
+        productid: req.body.productid,
+        Status: "Active",
+      })
       .exec((err, productData) => {
         if (err) {
           resp.json({ message: "server error " });
@@ -645,7 +679,7 @@ router.put("/productstep3", async (req, resp) => {
             resp.json({ message: "No product Found" });
           }
           if (productData) {
-            const query = { productid: req.body.productid };
+            const query = { productid: req.body.productid, Status: "Active" };
             // Set some fields in that document
             const update = {
               $set: {
@@ -689,7 +723,7 @@ router.put("/productstep3", async (req, resp) => {
 router.put("/imageupload", async (req, resp) => {
   try {
     console.log(req.body);
-    const query = { productid: req.body.productid };
+    const query = { productid: req.body.productid, Status: "Active" };
     // Set some fields in that document
     const update = {
       $set: {
@@ -718,181 +752,183 @@ router.put("/imageupload", async (req, resp) => {
   }
 });
 
-//                                                      Rating 
+//                                                      Rating
 //                                                    ----------
-
 
 router.post("/rateinsert", async (req, resp) => {
   try {
+    RateTemplatecopy.findOne({ prodid: req.body.prodid }).exec(
+      (err, chatdata) => {
+        if (err) {
+          resp.json({ message: " error " });
+        } else {
+          if (chatdata) {
+            const query = { prodid: req.body.prodid };
+            const update = {
+              $push: {
+                rates: [
+                  {
+                    rates: req.body.rates,
+                  },
+                ],
+              },
+            };
+            const options = { new: true };
+            return RateTemplatecopy.findOneAndUpdate(
+              query,
+              update,
+              options
+            ).then((updatedDocument) => {
+              if (updatedDocument) {
+                // resp.status(200).json({ message: "message sended"});
+                let total = 0;
+                let ratesarr = updatedDocument.rates.map((item) => {
+                  return item.rates;
+                });
+                let totarating = updatedDocument.rates.map((item) => {
+                  return (total = total + parseInt(item.rates));
+                });
+                let length = Object.keys(ratesarr).length;
+                let newtotal = (total / length).toFixed(1);
 
-    RateTemplatecopy.findOne({prodid:req.body.prodid})
-    .exec((err,chatdata)=>{
-      if(err){
-        resp.json( {message :" error "});
-      }else{
-   if(chatdata)
-   {
-    const query = { "prodid":req.body.prodid };
-    const update = {
-      "$push":  {
-      "rates": 
-      [{ 
-         "rates":req.body.rates     
-      }] 
-    }
-  };
-      const options = { new: true };
-      return RateTemplatecopy.findOneAndUpdate(query, update, options)
-        .then(updatedDocument => {
-          if(updatedDocument) {
-            // resp.status(200).json({ message: "message sended"});
-             let total=0
-             let ratesarr=updatedDocument.rates.map((item)=>{return(item.rates)});
-             let totarating=updatedDocument.rates.map((item)=>{return(total=total+parseInt(item.rates))});
-             let length=Object.keys(ratesarr).length;
-             let newtotal=(total/length).toFixed(1)
-              
-             const query = { _id: req.body.prodid };         
-             const update = {
-               $set: {
-                 Totalrating: newtotal,
-                 noofpeople:length
-               },
-             };
-             const options = { returnNewDocument: true };
-             return productTemplatecopy
-               .findOneAndUpdate(query, update, options)
-               .then((productdata) =>
-                { 
-                    if (productdata) 
-                        {
-                          const query = { _id: req.body.cartid };         
-                          const update = {
-                            $set: {
-                             rated:"rated"
-                            },
-                          };
-                          const options = { returnNewDocument: true };
-                          return cartTemplatecopy
-                            .findOneAndUpdate(query, update, options)
-                            .then((cartdata) =>
-                             {  if(cartdata)
-                               {
-                                 resp.status(200).json({ message: "rate added" });
-                               }else
-                               {
-                                 resp.status(200).json({ message: "cart table not updated" });
-                               }
-                              })  
-                              .catch((err) =>
-                              console.error(`Failed to find and update document: ${err}`)
-                            );
-                        } 
-                   else {
-                           resp.status(200).json({ message: "product table not updated" });
-                           console.log("product table not updated");
-                         }
-                         return productdata;
-                       })
-                       .catch((err) =>
-                         console.error(`Failed to find and update document: ${err}`)
-                       );
-        
-          } else {
-            resp.status(200).json({ message: "rate not added"});
-            console.log("rate not added")
+                const query = { _id: req.body.prodid };
+                const update = {
+                  $set: {
+                    Totalrating: newtotal,
+                    noofpeople: length,
+                  },
+                };
+                const options = { returnNewDocument: true };
+                return productTemplatecopy
+                  .findOneAndUpdate(query, update, options)
+                  .then((productdata) => {
+                    if (productdata) {
+                      const query = { _id: req.body.cartid };
+                      const update = {
+                        $set: {
+                          rated: "rated",
+                        },
+                      };
+                      const options = { returnNewDocument: true };
+                      return cartTemplatecopy
+                        .findOneAndUpdate(query, update, options)
+                        .then((cartdata) => {
+                          if (cartdata) {
+                            resp.status(200).json({ message: "rate added" });
+                          } else {
+                            resp
+                              .status(200)
+                              .json({ message: "cart table not updated" });
+                          }
+                        })
+                        .catch((err) =>
+                          console.error(
+                            `Failed to find and update document: ${err}`
+                          )
+                        );
+                    } else {
+                      resp
+                        .status(200)
+                        .json({ message: "product table not updated" });
+                      console.log("product table not updated");
+                    }
+                    return productdata;
+                  })
+                  .catch((err) =>
+                    console.error(`Failed to find and update document: ${err}`)
+                  );
+              } else {
+                resp.status(200).json({ message: "rate not added" });
+                console.log("rate not added");
+              }
+              return updatedDocument;
+            });
           }
-          return updatedDocument
-        });
-   }
-     if(!chatdata)
-         
-       {
+          if (!chatdata) {
             const chattinstance = new RateTemplatecopy({
               prodid: req.body.prodid,
-              rates:[{ 
-                rates:req.body.rates
-                       }]
+              rates: [
+                {
+                  rates: req.body.rates,
+                },
+              ],
             });
             console.log(req.body);
             chattinstance
               .save()
               .then((data) => {
-                if(data){
-                  const query = { _id: req.body.prodid };         
+                if (data) {
+                  const query = { _id: req.body.prodid };
                   const update = {
                     $set: {
                       Totalrating: req.body.rates,
-                      noofpeople:1
+                      noofpeople: 1,
                     },
                   };
                   const options = { returnNewDocument: true };
                   return productTemplatecopy
                     .findOneAndUpdate(query, update, options)
-                    .then((productdata) =>
-                     { 
-                         if (productdata) 
-                             {
-                              
-                                      
-                               const query = { _id: req.body.cartid };         
-                               const update = {
-                                 $set: {
-                                  rated:"rated"
-                                 },
-                               };
-                               const options = { returnNewDocument: true };
-                               return cartTemplatecopy
-                                 .findOneAndUpdate(query, update, options)
-                                 .then((cartdata) =>
-                                  {  if(cartdata)
-                                    {
-                                      resp.status(200).json({ message: "rate added" });
-                                    }else
-                                    {
-                                      resp.status(200).json({ message: "cart table not updated" });
-                                    }
-                                   })  
-                                   .catch((err) =>
-                                   console.error(`Failed to find and update document: ${err}`)
-                                 );
-                             } 
-                        else {
-                                resp.status(200).json({ message: "product table not updated" });
-                                console.log("product table not updated");
-                              }
-                              return productdata;
-                            })
-                            .catch((err) =>
-                              console.error(`Failed to find and update document: ${err}`)
-                            );
-                    
-                }else{
-                  resp.status(400).json({ message:"rate not added"});
+                    .then((productdata) => {
+                      if (productdata) {
+                        const query = { _id: req.body.cartid };
+                        const update = {
+                          $set: {
+                            rated: "rated",
+                          },
+                        };
+                        const options = { returnNewDocument: true };
+                        return cartTemplatecopy
+                          .findOneAndUpdate(query, update, options)
+                          .then((cartdata) => {
+                            if (cartdata) {
+                              resp.status(200).json({ message: "rate added" });
+                            } else {
+                              resp
+                                .status(200)
+                                .json({ message: "cart table not updated" });
+                            }
+                          })
+                          .catch((err) =>
+                            console.error(
+                              `Failed to find and update document: ${err}`
+                            )
+                          );
+                      } else {
+                        resp
+                          .status(200)
+                          .json({ message: "product table not updated" });
+                        console.log("product table not updated");
+                      }
+                      return productdata;
+                    })
+                    .catch((err) =>
+                      console.error(
+                        `Failed to find and update document: ${err}`
+                      )
+                    );
+                } else {
+                  resp.status(400).json({ message: "rate not added" });
                 }
               })
               .catch((error) => {
                 resp.status(400).json({ error: error, message: " error " });
               });
-         }      
+          }
+        }
       }
-    });
-         
+    );
   } catch (error) {
-    return resp
-      .status(400)
-      .json({ error: error, message: "Error updating" });
+    return resp.status(400).json({ error: error, message: "Error updating" });
   }
 });
 
 //                                                       serach product
 //                                                      ------------
 router.get("/search", async (req, resp) => {
-  try { 
-    const query=req.query.search
-
+  try {
+    const query = req.query.search;
     productTemplatecopy
-      .find({ "productname": new RegExp(query, "i")})
+      .find({ productname: new RegExp(query, "i"), Status: "Active" })
       .populate("categoreyno", "categoreyname")
       .populate("brandno", "brandname")
       .populate("subcatno", "subcategoreyname")
@@ -902,13 +938,12 @@ router.get("/search", async (req, resp) => {
         } else {
           resp.json(productdata);
         }
-      })
+      });
   } catch (error) {
     return resp
       .status(400)
       .json({ error: error, message: "Error fetching data" });
   }
 });
-
 
 module.exports = router;

@@ -62,7 +62,11 @@ const productTemplate=new mongoose.Schema({
         type:String,
         required:true
 
-    }
+    }, 
+    Status:{
+        type:String,
+        default:"Active"
+     }
 });
 
 module.exports=mongoose.model('product',productTemplate)

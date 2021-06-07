@@ -152,16 +152,16 @@ router.get("/jerseydeliveryorder", async (req, resp) => {
         const query = { "_id":req.body._id,"deliveryid":req.body.deliveryid}; 
         const update = {
           "$set": {
-            "status":"delivered"
+            "status":req.body.status
           }
         };
         const options = { returnNewDocument: true };
         return jerseyTemplatecopy.findOneAndUpdate(query, update, options)
           .then(updatedDocument1 => {
             if(updatedDocument1) {
-              resp.status(200).json({ message: "delivered"});
+              resp.status(200).json({ message: "updated"});
             } else {
-              resp.status(200).json({ message: "delivered failed"});
+              resp.status(200).json({ message: "updated failed"});
             }
             return updatedDocument1
           })
@@ -176,20 +176,21 @@ router.get("/jerseydeliveryorder", async (req, resp) => {
 
   router.put("/deliveredcart", async (req, resp) => {
     try {
+      console.log(req.body.status)
         console.log(req.body)
         const query = { "_id":req.body._id, "deliveryid":req.body.deliveryid}; 
         const update = {
           "$set": {
-            "status":"delivered"
+            "status":req.body.status
           }
         };
         const options = { returnNewDocument: true };
         return cartTemplateCopy.findOneAndUpdate(query, update, options)
           .then(updatedDocument1 => {
             if(updatedDocument1) {
-              resp.status(200).json({ message: "delivered"});
+              resp.status(200).json({ message: "updated"});
             } else {
-              resp.status(200).json({ message: "delivered failed"});
+              resp.status(200).json({ message: "updated failed"});
             }
             return updatedDocument1
           })
@@ -204,7 +205,7 @@ router.get("/jerseydeliveryorder", async (req, resp) => {
   router.get("/onlinedeliveryhist", async (req, resp) => {
     try {
       cartTemplateCopy
-        .find({ status:"delivered",deliveryid:req.query.id })
+        .find({ status:{$in :["delivered","notdelivered"]},deliveryid:req.query.id})
         .populate("productid")
         .populate("customerid")
         .sort({ date: -1 })
@@ -224,8 +225,9 @@ router.get("/jerseydeliveryorder", async (req, resp) => {
 
   router.get("/jerseydeliveryhist", async (req, resp) => {
     try{
-      jerseyTemplatecopy.find({status:"delivered",deliveryid:req.query.id}).sort({date: -1}).populate("userid")
+      jerseyTemplatecopy.find({status:{$in :["delivered","notdelivered"]},deliveryid:req.query.id}).sort({date: -1}).populate("userid")
     .exec((err,requestddata)=>{
+  
        if(err){
         resp.json( {message : "no request"});
        }else{
