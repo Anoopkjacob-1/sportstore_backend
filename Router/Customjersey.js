@@ -15,7 +15,7 @@ router.post("/add", async (req, resp) => {
        imagevalue = "not selected";
     } else {
       imagevalue = req.body.imageurl;
-    }
+    } 
     jerseyTemplatecopy.find({}).exec((err, jerseyData) => {
       if (err) {
         resp.json({ message: "server error " });
@@ -27,8 +27,11 @@ router.post("/add", async (req, resp) => {
             primarycolor: req.body.primarycolor,
             Secondarycolor: req.body.Secondarycolor,
             imageurl:imagevalue,
-            sizeandnoof: req.body.sizeandnoof,
+            sizexl: req.body.xl,
+            sizexxl: req.body.xxl,
+            sizexxxl: req.body.xxxl,
             discrption: req.body.discrption,
+            Amount: 100*(parseInt(req.body.xl)+parseInt(req.body.xxl)+parseInt(req.body.xxxl)),
           });
           console.log(req.body);
           jerseyInstance
@@ -69,6 +72,37 @@ router.get("/jerseyrequestget", async (req, resp) => {
 }); 
 
 
+router.put("/jerseymade", async (req, resp) => {
+  try {
+      console.log(req.body)
+      const query = { "_id":req.body.id}; 
+      const update = {
+        "$set": {
+          "status":"jerseymade"
+        }
+      };
+      // Return the updated document instead of the original document
+      const options = { returnNewDocument: true };
+      return jerseyTemplatecopy.findOneAndUpdate(query, update, options)
+        .then(updatedDocument1 => {
+          if(updatedDocument1) {
+            resp.status(200).json({ message: "jerseymade"});
+
+            console.log(`Successfully Accepted ${updatedDocument1}.`)
+          } else {
+            resp.status(200).json({ message: "jerseymade failed"});
+            console.log("Accepted failed")
+          }
+          return updatedDocument1
+        })
+        .catch(err => console.error(`Failed to find and update document: ${err}`))
+      
+  } catch (error) {
+    return resp
+      .status(400)
+      .json({ error: error, message: "Error updating" });
+  }
+});
 router.put("/ACCEPT", async (req, resp) => {
   try {
       console.log(req.body)
@@ -134,68 +168,8 @@ return resp
 });
 
 
-router.put("/FinalAccept", async (req, resp) => {
-  try {
-      console.log(req.body)
-      const query = { "_id":req.body.id}; 
-      const update = {
-        "$set": {
-          "status":"FinalAccept"
-        }
-      };
-      // Return the updated document instead of the original document
-      const options = { returnNewDocument: true };
-      return jerseyTemplatecopy.findOneAndUpdate(query, update, options)
-        .then(updatedDocument1 => {
-          if(updatedDocument1) {
-            resp.status(200).json({ message: "FinalAccept"});
 
-            console.log(`Successfully FinalAccept ${updatedDocument1}.`)
-          } else {
-            resp.status(200).json({ message: "FinalAccept failed"});
-            console.log("FinalAccept failed")
-          }
-          return updatedDocument1
-        })
-        .catch(err => console.error(`Failed to find and update document: ${err}`))
-      
-  } catch (error) {
-    return resp
-      .status(400)
-      .json({ error: error, message: "Error updating" });
-  }
-});
 
-router.put("/FinalReject", async (req, resp) => {
-  try {
-  console.log(req.body)
-  const query = { "_id":req.body.id};
-  const update = {
-    "$set": {
-      "status":"FinalReject"
-    }
-  };
-  // Return the updated document instead of the original document
-  const options = { returnNewDocument: true };
-  return jerseyTemplatecopy.findOneAndUpdate(query, update, options)
-    .then(updatedDocument1 => {
-      if(updatedDocument1) {
-        resp.status(200).json({ message: "FinalReject"});
-  
-        console.log(`Successfully FinalReject ${updatedDocument1}.`)
-      } else {
-        resp.status(200).json({ message: "FinalReject failed"});
-        console.log("FinalReject failed")
-      }
-      return updatedDocument1
-    })
-    .catch(err => console.error(`Failed to find and update document: ${err}`))    
-  } catch (error) {
-  return resp
-    .status(400)
-    .json({ error: error, message: "Error updating" });
-  }
-  });
 
          
 
@@ -220,36 +194,6 @@ router.post("/requestgetwithid", async (req, resp) => {
 
 
 
-router.put("/AMOUNTSEND", async (req, resp) => {
-  try {
-  console.log(req.body)
-  const query = { "_id":req.body.id};
-  const update = {
-    "$set": {
-      "Amount":req.body.amount
-    }
-  };
-  // Return the updated document instead of the original document
-  const options = { returnNewDocument: true };
-  return jerseyTemplatecopy.findOneAndUpdate(query, update, options)
-    .then(updatedDocument1 => {
-      if(updatedDocument1) {
-        resp.status(200).json({ message: "AMOUNT SEND"});
-  
-        console.log(`Successfully Reject ${updatedDocument1}.`)
-      } else {
-        resp.status(200).json({ message: "AMOUNT SEND failed"});
-        console.log("AMOUNT SEND failed")
-      }
-      return updatedDocument1
-    })
-    .catch(err => console.error(`Failed to find and update document: ${err}`))    
-  } catch (error) {
-  return resp
-    .status(400)
-    .json({ error: error, message: "Error updating" });
-  }
-  });
 
 
 

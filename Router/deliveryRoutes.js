@@ -10,7 +10,7 @@ const cartTemplateCopy = require("../models/CartModel");
 
 router.get("/jerseydeliveryorder", async (req, resp) => {
     try{
-      jerseyTemplatecopy.find({status:"FinalAccept",payement:"paid"}).sort({date: -1}).populate("userid")
+      jerseyTemplatecopy.find({status:"jerseymade",payement:"paid"}).sort({date: -1}).populate("userid")
     .exec((err,requestddata)=>{
        if(err){
         resp.json( {message : "no request"});

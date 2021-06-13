@@ -6,6 +6,7 @@ const crypto = require('crypto');
 
 const cartTemplateCopy = require("../models/CartModel");
 const jerseyTemplatecopy = require("../models/CustomJerseyModel");
+const productTemplatecopy = require("../models/ProductModel");
 
 router.post("/orders", async (req, res) => {
     try {
@@ -47,7 +48,7 @@ router.post("/success", async (req, res) => {
                 {
                                           try {        
                                     console.log(req.body)
-                                            const query = { customerid:req.body.user,status:"cart"};
+                                            const query = { _id:req.body.cartid,status:"cart"};
                                             const update = {
                                             "$set": {
                                                 "status":"cashpayed",
@@ -62,14 +63,30 @@ router.post("/success", async (req, res) => {
                                             return cartTemplateCopy.updateMany(query, update,options)
                                             .then(
                                                 (updatedDocument2) => {
-                                                if(updatedDocument2) {
-                                                res.status(200).json({
-                                                  msg: "succeffully payed",
-                                                  orderId: req.body.razorpayOrderId,
-                                                  paymentId: req.body.razorpayPaymentId,
-                                                  user:req.body.receipt,
-                                                  payfrom:req.body.payfrom,
-                                              });
+                                                if(updatedDocument2) {               
+                                              const query1 = { "productid":req.body.reqid};
+                                              const update1 = {
+                                                "$inc": {
+                                                  "quantity":-req.body.quantity
+                                                }
+                                              };
+                                              
+                                              const options = { returnNewDocument: true };
+                                              return productTemplatecopy.findOneAndUpdate(query1, update1, options)
+                                                .then((productdata,err) => {
+                              
+                                                    if(err) resp.json({ message: "server error" });
+                                                    if(!productdata)  resp.json({ message: "no products" });
+                                                    if(productdata){
+                                                      res.status(200).json({
+                                                        msg: "succeffully payed",
+                                                        orderId: req.body.razorpayOrderId,
+                                                        paymentId: req.body.razorpayPaymentId,
+                                                        user:req.body.receipt,
+                                                        payfrom:req.body.payfrom,
+                                                    });
+                                                    }
+                                                });
 
                                                 } else {
                                                 res.status(200).json({ message: "payement canceled"});
@@ -144,7 +161,7 @@ router.post("/payed", async (req, resp) => {
 
   try {        
     console.log(req.body)
-            const query = { customerid:req.body.user,status:"cart"};
+            const query = {  _id:req.body.cartid,status:"cart"};
             const update = {
               "$set": {
                 "status":"cashpayed",
